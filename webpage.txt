@@ -29,7 +29,7 @@ Please Don't Talk When You Don't Know — PDTWYDK
 => %BOLD%Imagine calling someone just to drop a %ITALIC%"You're living in {{country}}"%CILATI% line, just to feel interesting... 🤦‍♀️%DOLB%
 
 ┌──────────────────┐
-│ ❌ Don't do this  │
+│ ❌ Don't do this │
 │                  └────────────────┐
 │                                   │
 │ [kratza] | 8:58 PM                │ Note that kratza just found a random IP and
