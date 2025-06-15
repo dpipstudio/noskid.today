@@ -94,13 +94,17 @@ $url = "http://ip-api.com/json/{$ip}?fields=status,country,city,query,isp";
 $response = file_get_contents($url);
 $data = json_decode($response, true);
 
+$time = new DateTime();
+
 if ($data['status'] === 'success') {
     $vars = [
         'country' => $data['country'] ?? 'Unknown',
         'city' => $data['city'] ?? 'Unknown',
         'ip' => $data['query'] ?? $ip,
         'isp' => $data['isp'] ?? 'Unknown',
-        'ispupper' => strtoupper($data['isp'] ?? 'Unknown')
+        'ispupper' => strtoupper($data['isp'] ?? 'Unknown'),
+        'time' => $time->format('h:i:s A (T)'),
+        'ip_fetch' => 'Success'
     ];
 } else {
     $vars = [
@@ -108,7 +112,9 @@ if ($data['status'] === 'success') {
         'city' => 'some city',
         'ip' => '0.0.0.0',
         'isp' => 'some isp',
-        'ispupper' => 'SOME ISP'
+        'ispupper' => 'SOME ISP',
+        'time' => $time->format('h:i:s A (T)'),
+        'ip_fetch' => 'Failed '
     ];
 }
 
