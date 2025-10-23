@@ -187,7 +187,7 @@ $achievements = [
     [
         'name' => 'URL Hacker',
         'percent' => 38,
-        'description' => 'Access a feature using a URL parameter',
+        'description' => 'Access a feature using a URL fragment (#)',
         'time' => 0
     ],
     [
