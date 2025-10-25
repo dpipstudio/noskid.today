@@ -41,6 +41,7 @@ If you like what we’re doing, consider supporting us! Every contribution helps
 ## Installation
 
 ```bash
+sudo apt install librsvg2-bin # assuming you're on debian-based distro, if not install it using your package manager
 git clone https://github.com/dpipstudio/noskid.today # clone the repo
 cd noskid.today/website # navigate to the websites folder
 nano api/config.php # or notepad api/config.php on windows
