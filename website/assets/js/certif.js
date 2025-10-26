@@ -502,8 +502,12 @@ function offerCertificate(percentage, userAnswers) {
 <p>✅ Certificate downloaded! Check if a certificate is valid with 'Shift + C'</p>
 
 <div class="button-row">
-  <p>Discover NoSkid's services ></p>
+  <p>What to do next ></p>
   <div class="buttons">
+    <a onclick="shareOnX(${percentage})" class="a-button">
+      <img src="/assets/img/twitter-x-line.svg" width=24/>
+      Share on X
+    </a>
     <a href="https://github.com/dpipstudio/noskid.today" target="_blank" class="a-button">
       <img src="/assets/img/github-fill.svg" width=24/>
     </a>
@@ -516,7 +520,6 @@ function offerCertificate(percentage, userAnswers) {
 </div>
 
 `;
-
         certificateSection.style.display = 'none';
       }, 2000);
     } catch (error) {
@@ -584,6 +587,18 @@ async function redoQuiz(event) {
     e.preventDefault();
     checkQuizResponses();
   });
+}
+
+function shareOnX(score) {
+  const baseUrl = 'https://twitter.com/intent/tweet';
+  const text = `I just got ${score}% on the NoSkid certification quiz! \n\nProve you're not a skid at NoSkid.today`;
+  const hashtags = 'NoSkid,Certificate,IT';
+
+  const tweetUrl = `${baseUrl}?text=${encodeURIComponent(text)}&hashtags=${encodeURIComponent(hashtags)}`;
+  
+  window.open(tweetUrl, '_blank', 'width=550,height=420');
+
+  log('Share on X clicked!', 'success');
 }
 
 handleQuizDisplay();
