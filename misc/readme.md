@@ -19,8 +19,11 @@ Libraries to do different actions related to noskid
 `rq.noskid.today/`:  
 A tiny request catcher server
 
-`skidguard.noskid.today`:  
+`skidguard.noskid.today/`:  
 The NoSkid CAPTCHA service
   
-`blog.noskid.today`:  
+`blog.noskid.today/`:  
 The NoSkid blog, based on [douxxtech/douxx.blog](https://github.com/douxxtech/douxx.blog)
+  
+`db_setup/`:  
+Contains the sql script to initialize your database for a NoSkid API.
