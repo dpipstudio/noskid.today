@@ -13,11 +13,36 @@ function sanitize_lang($lang)
     return preg_replace('/[^a-zA-Z0-9_]/', '', substr($lang, 0, 10));
 }
 
+function sanitize_bool($value)
+{
+    return $value === '1' || $value === 'true' ? true : false;
+}
+
+function sanitize_url($url)
+{
+    if (empty($url)) return null;
+    $url = urldecode($url);
+    if (filter_var($url, FILTER_VALIDATE_URL) && (strpos($url, 'https://') === 0 || strpos($url, 'http://') === 0)) {
+        return $url;
+    }
+    return null;
+}
+
 // get params
 $size = sanitize_param($_GET['size'] ?? 'normal', ['normal', 'compact', 'invisible']);
 $theme = sanitize_param($_GET['theme'] ?? 'light', ['dark', 'light', 'auto']);
 $lang = sanitize_lang($_GET['lang'] ?? 'en');
 $widget_id = intval($_GET['widget_id'] ?? 0);
+
+$noskid_debug = sanitize_bool($_GET['noskid_debug'] ?? 'false');
+$noskid_strict_check = sanitize_bool($_GET['noskid_strictCheck'] ?? 'true');
+$noskid_allow_achievements = sanitize_bool($_GET['noskid_allowAchievements'] ?? 'true');
+$noskid_timeout = intval($_GET['noskid_timeout'] ?? 10000);
+$noskid_use_legacy_api = sanitize_bool($_GET['noskid_useLegacyAPI'] ?? 'false');
+$noskid_api_url = sanitize_url($_GET['noskid_apiUrl'] ?? '');
+
+if ($noskid_timeout < 1000) $noskid_timeout = 1000;
+if ($noskid_timeout > 60000) $noskid_timeout = 60000;
 
 $lang_file = __DIR__ . "/langs.json";
 $translations = [];
@@ -297,11 +322,19 @@ $colors = $themes[$theme];
         const captchaText = document.getElementById('captcha-text');
         const fileInput = document.getElementById('fileInput');
 
-        const noskid = new NskdLbr({
-            debug: false,
-            strictCheck: true,
-            allowAchievements: true
-        });
+        const noskidConfig = {
+            debug: <?= $noskid_debug ? 'true' : 'false' ?>,
+            strictCheck: <?= $noskid_strict_check ? 'true' : 'false' ?>,
+            allowAchievements: <?= $noskid_allow_achievements ? 'true' : 'false' ?>,
+            timeout: <?= $noskid_timeout ?>,
+            useLegacyAPI: <?= $noskid_use_legacy_api ? 'true' : 'false' ?>
+        };
+        <?php if ($noskid_api_url): ?>
+        noskidConfig.apiUrl = <?= json_encode($noskid_api_url) ?>;
+        <?php endif; ?>
+
+        const noskid = new NskdLbr(noskidConfig);
+
 
         function setCookie(name, value, days = 365) {
             const expires = new Date(Date.now() + days * 864e5).toUTCString();

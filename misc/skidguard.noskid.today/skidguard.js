@@ -21,7 +21,6 @@
 
             const widgetId = this.counter++;
 
-            // Parse and sanitize options
             const size = ['normal', 'compact', 'invisible'].includes(options.size)
                 ? options.size
                 : 'normal';
@@ -32,12 +31,15 @@
 
             const lang = this.sanitizeLang(options.language || 'en');
 
-            // build iframe
+            // nskdlbr options
+            const noskidOptions = this.parseNoskidOptions(options.noskid || {});
+
             const iframeUrl = this.buildIframeUrl({
                 size,
                 theme,
                 lang,
-                widgetId
+                widgetId,
+                noskidOptions
             });
 
             const wrapper = document.createElement('div');
@@ -77,6 +79,49 @@
             return String(lang).replace(/[^a-zA-Z0-9_]/g, '').slice(0, 2);
         },
 
+        parseNoskidOptions(noskidOpts) {
+            const parsed = {};
+
+            // Debug mode
+            if (typeof noskidOpts.debug === 'boolean') {
+                parsed.debug = noskidOpts.debug ? '1' : '0';
+            }
+
+            // Strict check
+            if (typeof noskidOpts.strictCheck === 'boolean') {
+                parsed.strictCheck = noskidOpts.strictCheck ? '1' : '0';
+            }
+
+            // Allow achievements
+            if (typeof noskidOpts.allowAchievements === 'boolean') {
+                parsed.allowAchievements = noskidOpts.allowAchievements ? '1' : '0';
+            }
+
+            // Timeout (in milliseconds)
+            if (typeof noskidOpts.timeout === 'number' && noskidOpts.timeout > 0) {
+                parsed.timeout = String(noskidOpts.timeout);
+            }
+
+            // Use legacy API
+            if (typeof noskidOpts.useLegacyAPI === 'boolean') {
+                parsed.useLegacyAPI = noskidOpts.useLegacyAPI ? '1' : '0';
+            }
+
+            // Custom API URL (sanitize)
+            if (typeof noskidOpts.apiUrl === 'string' && noskidOpts.apiUrl.trim()) {
+                try {
+                    const url = new URL(noskidOpts.apiUrl);
+                    if (url.protocol === 'https:' || url.protocol === 'http:') {
+                        parsed.apiUrl = encodeURIComponent(noskidOpts.apiUrl);
+                    }
+                } catch (e) {
+                    console.warn('skidguard: Invalid apiUrl provided');
+                }
+            }
+
+            return parsed;
+        },
+
         buildIframeUrl(params) {
             const base = 'https://skidguard.noskid.today/challenge';
             const query = new URLSearchParams({
@@ -85,6 +130,12 @@
                 lang: params.lang,
                 widget_id: params.widgetId
             });
+
+            // Add NskdLbr options to query
+            Object.keys(params.noskidOptions).forEach(key => {
+                query.set(`noskid_${key}`, params.noskidOptions[key]);
+            });
+
             return `${base}?${query.toString()}`;
         },
 
@@ -159,7 +210,7 @@
                 return;
             }
 
-            // nly allow execute for invisible widgets
+            // Only allow execute for invisible widgets
             if (w.size !== 'invisible') {
                 console.warn('skidguard.execute: only works with invisible widgets');
                 return;

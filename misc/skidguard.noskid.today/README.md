@@ -2,7 +2,7 @@
 
 Modern *bot* prevention powered by verified NoSkid certificates. Simple and secure; no image puzzles or tracking.
 
-Absolutely - here’s a **clean, developer-friendly Markdown documentation** for the **SkidGuard CAPTCHA system** and **NoSkid Certificate Library**, including integration examples and backend verification details.
+Absolutely - here's a **clean, developer-friendly Markdown documentation** for the **SkidGuard CAPTCHA system** and **NoSkid Certificate Library**, including integration examples and backend verification details.
 
 
 ## Overview
@@ -38,6 +38,17 @@ Create a container where you want the CAPTCHA to appear:
     size: 'normal',      // 'normal' | 'compact' | 'invisible'
     theme: 'light',      // 'light' | 'dark' | 'auto'
     language: 'en',      // ISO 2-letter code (e.g., 'en', 'fr')
+    
+    // Optional: Configure NskdLbr verification library
+    noskid: {
+      debug: false,              // Enable debug logging
+      strictCheck: true,         // Validate local vs API data
+      allowAchievements: true,   // Allow achievement-boosted certificates
+      timeout: 10000,            // API timeout in milliseconds (1000-60000)
+      useLegacyAPI: false,       // Use legacy API format
+      apiUrl: null               // Custom verification API URL (optional)
+    },
+    
     callback: (token, certificateData) => {
       console.log('[OK] Verified!', token, certificateData);
 
@@ -152,8 +163,20 @@ Creates a SkidGuard CAPTCHA instance in a container.
 | `size`                   | string   | `'normal'` | `'normal'`, `'compact'`, or `'invisible'` |
 | `theme`                  | string   | `'light'`  | `'light'`, `'dark'`, or `'auto'`          |
 | `language`               | string   | `'en'`     | Language code                             |
+| `noskid`                 | object   | `{}`       | NskdLbr configuration options (see below) |
 | `callback(token, data)`  | function | -          | Called on success                         |
 | `errorCallback(message)` | function | -          | Called on error                           |
+
+#### `noskid` Configuration Options
+
+| Option              | Type    | Default | Description                                      |
+| ------------------- | ------- | ------- | ------------------------------------------------ |
+| `debug`             | boolean | `false` | Enable debug logging                             |
+| `strictCheck`       | boolean | `true`  | Validate local certificate data vs API response  |
+| `allowAchievements` | boolean | `true`  | Allow certificates that used achievement boosts  |
+| `timeout`           | number  | `10000` | API request timeout in milliseconds (1000-60000) |
+| `useLegacyAPI`      | boolean | `false` | Use legacy API format                            |
+| `apiUrl`            | string  | `null`  | Custom verification API URL (optional)           |
 
 ### `skidguard.getResponse(widgetId)`
 
@@ -226,4 +249,3 @@ If `success` is `false`, check the `message` field for details.
 
 ## License
 This work is licensed under the same work as its parent repository: The NSDv1 (see LICENSE).
-
