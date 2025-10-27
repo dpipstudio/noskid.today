@@ -34,7 +34,8 @@
   ],
   "replaceKeyWords": {
     "%%TURNSTILE_KEY%%": "0x4AAAAAABeZwqhQ3FcnOkEe",
-    "%%ANALYTICS_URL%%": "https://track.dpip.lol/?id=noskid.today"
+    "%%ANALYTICS_URL%%": "https://track.dpip.lol/?id=noskid.today",
+    "%%CHECK_API_URL%%": "https://check.noskid.today/"
   },
   "commentTag": "<!--\nThis incredible website has been made by douxx.tech !\nnoskid.today is a DPIP.lol project.\nSource is avalible at github.com/dpipstudio/noskid.today !\n\ninvaders must die ;)\n\nCopyright (C) 2025 Douxx.tech <douxx@douxx.tech>\n\nThis work is licensed under the NSD License v1.0.\nYou may obtain a copy of the License at: https://noskid.today/LICENSE\n-->",
   "preservedVariables": [

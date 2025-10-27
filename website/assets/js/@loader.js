@@ -57,6 +57,7 @@ class ScriptLoader {
         this.scripts = [
                 'https://challenges.cloudflare.com/turnstile/v0/api.js',
                 'https://lbr.noskid.today/nskd-lbr.min.js',
+                'https://skidguard.noskid.today/skidguard.js',
                 'assets/js/@typed.js',
                 'assets/js/achievements.js',
                 'assets/js/achievements.utils.js',

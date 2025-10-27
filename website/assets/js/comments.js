@@ -1,5 +1,8 @@
 //Comments.js | Comment system for noskid with threaded replies
 
+let skidguardToken = null;
+let skidguardWidgetId = null;
+
 function spawnCommentSystem(event) {
     event.preventDefault();
 
@@ -345,6 +348,10 @@ function addCommentSystemStyles() {
         .comments-container::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.15);
         }
+
+        #skidguard-captcha {
+            padding: 10px 0;
+        }
     `;
 
     document.head.appendChild(style);
@@ -390,8 +397,8 @@ function renderComment(comment, parentAuthor = null) {
     const userLiked = comment.user_reaction === 'like';
     const userDisliked = comment.user_reaction === 'dislike';
     const hasReplies = comment.replies && comment.replies.length > 0;
-    
-    const displayAuthor = parentAuthor 
+
+    const displayAuthor = parentAuthor
         ? `${comment.author || 'Anonymous'} → ${parentAuthor}`
         : (comment.author || 'Anonymous');
 
@@ -454,7 +461,7 @@ function displayComments(window, comments) {
 function toggleReplies(commentId) {
     const repliesContainer = document.getElementById(`replies-${commentId}`);
     const toggleBtn = document.querySelector(`.comment[data-id="${commentId}"] .toggle-replies-btn`);
-    
+
     if (repliesContainer.style.display === 'none') {
         repliesContainer.style.display = 'block';
         toggleBtn.innerHTML = toggleBtn.innerHTML.replace('▼', '▲');
@@ -554,9 +561,13 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
                         <label for="content">Comment:</label>
                         <textarea id="content" required rows="5" placeholder="Write your comment here..."></textarea>
                     </div>
+                    <div class="form-group">
+                        <label>Verify you're not a skid:</label>
+                        <div id="skidguard-captcha"></div>
+                    </div>
                     <div class="form-actions">
                         <button type="button" class="form-btn secondary cancel">Cancel</button>
-                        <button type="submit" class="form-btn primary">${isReply ? 'Send Reply' : 'Send Comment'}</button>
+                        <button type="submit" class="form-btn primary" disabled>Send ${isReply ? 'Reply' : 'Comment'}</button>
                     </div>
                 </form>
             </div>
@@ -564,6 +575,12 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
         theme: 'dark',
         resizable: false,
         statusText: isReply ? 'Writing a reply' : 'Writing a new comment',
+        onclose: () => {
+            skidguardToken = null;
+            if (skidguardWidgetId !== null) {
+                skidguard.reset(skidguardWidgetId);
+            }
+        }
     });
 
     const form = newCommentWin.querySelector('form');
@@ -575,6 +592,27 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
     const cancelBtn = newCommentWin.querySelector('.cancel');
     cancelBtn.addEventListener('click', () => {
         ClassicWindow.closeWindow(newCommentWin);
+    });
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    skidguardWidgetId = skidguard.render('#skidguard-captcha', {
+        size: 'normal',
+        theme: 'dark',
+        language: 'en',
+        callback: (token, certificateData) => {
+            skidguardToken = token;
+            submitBtn.disabled = false;
+            log('SkidGuard verification successful', 'success');
+        },
+        errorCallback: (err) => {
+            skidguardToken = null;
+            submitBtn.disabled = true;
+            log('SkidGuard verification failed: ' + err, 'error');
+        },
+        noskid : {
+            apiUrl: '%%CHECK_API_URL%%'
+        }
     });
 
     return newCommentWin;
@@ -614,11 +652,18 @@ function submitComment(form, commentWindow, replyTo = null) {
 
     const commentData = {
         author: author,
-        content: content
+        content: content,
+        skey: skidguardToken
     };
 
     if (replyTo !== null) {
         commentData.reply_to = replyTo;
+    }
+
+    if (!skidguardToken) {
+        alert('Please complete the SkidGuard verification.');
+        buttons.forEach(btn => btn.disabled = false);
+        return;
     }
 
     fetch('/api/comments/index.php', {
