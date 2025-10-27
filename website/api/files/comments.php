@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 
 require_once '../config.php';
 require_once '../files/getip.php';
+require_once '../files/notifications.php';
 
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -237,8 +238,12 @@ function addComment($conn, $userFingerprint, $ip) {
         $comment = $result->fetch_assoc();
         $comment['replies'] = [];
 
-        if (defined('DISCORD_WEBHOOK_URL') && !empty(DISCORD_WEBHOOK_URL)) {
-            sendDiscordNotification($content, $author, $replyTo);
+        if (defined('NOTIFICATIONS_ENDPOINT') && !empty(NOTIFICATIONS_ENDPOINT)) {
+            sendNotification('new_comment', [
+                'id' => $comment['id'],
+                'author' => $comment['author'],
+                'content' => $comment['content']
+            ]);
         }
 
         http_response_code(201);
