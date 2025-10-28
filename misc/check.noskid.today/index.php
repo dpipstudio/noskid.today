@@ -11,6 +11,7 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'username');
 define('DB_PASS', 'password');
 define('DB_NAME', 'name');
+define('ORIGINAL_API', 'https://noskid.today/api/checkcert/?key=');
 
 if (!isset($_GET['key']) || empty($_GET['key'])) {
     echo json_encode([
@@ -92,13 +93,13 @@ if ($result->num_rows > 0) {
 
 $stmt->close();
 
-$originalApi = "https://noskid.today/api/checkcert/?key=" . urlencode($key);
+$originalApi = ORIGINAL_API . urlencode($key);
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $originalApi);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-curl_setopt($ch, CURLOPT_USERAGENT, 'check.noskid.today/5.0');
+curl_setopt($ch, CURLOPT_USERAGENT, 'NoSkid.Checker/5.1');
 curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
 $apiResponse = curl_exec($ch);
@@ -149,13 +150,13 @@ if ($apiData['success']) {
     $cleanedUsername = cleanUsername($originalUsername, $data['certificate_number']);
     $boosted = isset($data['boosted']) ? (int)$data['boosted'] : null;
 
-    $insertStmt = $mysqli->prepare("INSERT INTO cert_cache 
-        (verification_key, is_valid, certificate_number, username, nickname, percentage, creation_date, country, country_code, boosted, cached_at) 
-        VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) 
-        ON DUPLICATE KEY UPDATE 
-            username = VALUES(username), 
-            nickname = VALUES(nickname), 
-            boosted = VALUES(boosted), 
+    $insertStmt = $mysqli->prepare("INSERT INTO cert_cache
+        (verification_key, is_valid, certificate_number, username, nickname, percentage, creation_date, country, country_code, boosted, cached_at)
+        VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ON DUPLICATE KEY UPDATE
+            username = VALUES(username),
+            nickname = VALUES(nickname),
+            boosted = VALUES(boosted),
             cached_at = NOW()");
 
     if ($insertStmt) {
@@ -181,7 +182,7 @@ if ($apiData['success']) {
     $apiData['query'] = $key;
     echo json_encode($apiData, JSON_PRETTY_PRINT);
 } else {
-    $insertStmt = $mysqli->prepare("INSERT INTO cert_cache (verification_key, is_valid, cached_at) VALUES (?, 0, NOW()) 
+    $insertStmt = $mysqli->prepare("INSERT INTO cert_cache (verification_key, is_valid, cached_at) VALUES (?, 0, NOW())
         ON DUPLICATE KEY UPDATE is_valid = 0, cached_at = NOW()");
 
     if ($insertStmt) {
