@@ -55,42 +55,42 @@ class ScriptLoader {
     constructor(consoleElement) {
         this.consoleElement = consoleElement;
         this.scripts = [
-                'https://challenges.cloudflare.com/turnstile/v0/api.js',
-                'https://lbr.noskid.today/nskd-lbr.min.js',
-                'https://skidguard.noskid.today/skidguard.js',
-                'assets/js/@typed.js',
-                'assets/js/achievements.js',
-                'assets/js/achievements.utils.js',
-                'assets/js/again.js',
-                'assets/js/awesome.js',
-                'assets/js/badapl.js',
-                'assets/js/boom.js',
-                'assets/js/browser.js',
-                'assets/js/certif.js',
-                'assets/js/check.js',
-                'assets/js/comments.js',
-                'assets/js/console.js',
-                'assets/js/cookies.js',
-                'assets/js/cool.js',
-                'assets/js/cursor.js',
-                'assets/js/cw.js',
-                'assets/js/cw.utils.js',
-                'assets/js/downfall.js',
-                'assets/js/exploit.js',
-                'assets/js/gary.js',
-                'assets/js/konata.js',
-                'assets/js/localinfo.js',
-                'assets/js/noskid.js',
-                'assets/js/pong.js',
-                'assets/js/rick.js',
-                'assets/js/rq.js',
-                'assets/js/sstv.js',
-                'assets/js/terminal.js',
-                'assets/js/track.js',
-                'assets/js/update.js',
-                'assets/js/warning.js',
-                'assets/js/websocket.js',
-                'assets/js/zkeys.js',
+            'https://challenges.cloudflare.com/turnstile/v0/api.js',
+            'https://lbr.noskid.today/nskd-lbr.min.js',
+            'https://skidguard.noskid.today/skidguard.js',
+            'assets/js/@typed.js',
+            'assets/js/achievements.js',
+            'assets/js/achievements.utils.js',
+            'assets/js/again.js',
+            'assets/js/awesome.js',
+            'assets/js/badapl.js',
+            'assets/js/boom.js',
+            'assets/js/browser.js',
+            'assets/js/certif.js',
+            'assets/js/check.js',
+            'assets/js/comments.js',
+            'assets/js/console.js',
+            'assets/js/cookies.js',
+            'assets/js/cool.js',
+            'assets/js/cursor.js',
+            'assets/js/cw.js',
+            'assets/js/cw.utils.js',
+            'assets/js/downfall.js',
+            'assets/js/exploit.js',
+            'assets/js/gary.js',
+            'assets/js/konata.js',
+            'assets/js/localinfo.js',
+            'assets/js/noskid.js',
+            'assets/js/pong.js',
+            'assets/js/rick.js',
+            'assets/js/rq.js',
+            'assets/js/sstv.js',
+            'assets/js/terminal.js',
+            'assets/js/track.js',
+            'assets/js/update.js',
+            'assets/js/warning.js',
+            'assets/js/websocket.js',
+            'assets/js/zkeys.js',
         ];
         this.loadedCount = 0;
         this.startTime = null;
@@ -224,7 +224,64 @@ class ScriptLoader {
         });
     }
 
+    async checkForUpdates() {
+        try {
+            log('Checking for updates...', 'info');
+            
+            const storedVersion = localStorage.getItem('latest'); 
+
+            const response = await fetch('/api/latest/');
+
+            if (!response.ok) {
+                log(`Error while checking for updates: ${response.statusText}`, 'error');
+                return false;
+            }
+
+            const latestVersion = await response.text();
+
+            if (!storedVersion) {
+                localStorage.setItem('latest', latestVersion);
+                log(`Initialized version to ${latestVersion}`, 'success');
+                return false;
+            } else if (storedVersion !== latestVersion) {
+                log(`New version detected: ${latestVersion}`, 'warning');
+                localStorage.setItem('latest', latestVersion);
+                localStorage.setItem('isUpdating', 'true');
+                
+                log('Reloading to get latest version...', 'warning');
+                
+                
+                window.location.href = window.location.href;
+                
+                
+                return true;
+            } else {
+                log(`Up to date! (${latestVersion})`, 'success');
+                return false;
+            }
+
+        } catch (error) {
+            log(`Error while checking for updates: ${error}`, 'error');
+            return false;
+        }
+    }
+
     async loadAll() {
+        const isUpdating = localStorage.getItem('isUpdating');
+        if (isUpdating === 'true') {
+            const loaderText = document.querySelector('.loader-text');
+            if (loaderText) {
+                loaderText.textContent = 'UPDATING RESOURCES';
+            }
+
+        }
+
+        const needsUpdate = await this.checkForUpdates();
+        
+        if (needsUpdate) {
+            return;
+        }
+
         this.startTime = performance.now();
         log('Starting loading resources...');
 
@@ -246,13 +303,11 @@ class ScriptLoader {
             this.executeHashFunction();
         }
 
-        setTimeout(() => {
-            const loaderContainer = document.getElementById('loader-container');
-            if (loaderContainer) {
-                loaderContainer.style.opacity = '0';
-                setTimeout(() => loaderContainer.style.display = 'none', 500);
-            }
-        }, 1000);
+        const loaderContainer = document.getElementById('loader-container');
+        if (loaderContainer) {
+            loaderContainer.style.opacity = '0';
+            setTimeout(() => loaderContainer.style.display = 'none', 500);
+        }
     }
 }
 
