@@ -251,7 +251,7 @@ class ScriptLoader {
                 log('Reloading to get latest version...', 'warning');
                 
                 
-                window.location.href = window.location.href;
+                window.location.reload(true); // only refreshs cache on firefox, if anyone has a better way of doing it please do it
                 
                 
                 return true;
