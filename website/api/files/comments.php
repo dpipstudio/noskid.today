@@ -200,9 +200,9 @@ function addComment($conn, $userFingerprint, $ip)
     if ($stmt->execute()) {
         $comment_id = $stmt->insert_id;
 
-        $sql = "INSERT INTO comments_users (user_fingerprint, ip_address)
-        VALUES (?, ?)
-        ON DUPLICATE KEY UPDATE ip_address = ?";
+        $sql = "INSERT INTO comments_users (user_fingerprint, ip_address, last_comment_date)
+        VALUES (?, ?, NOW())
+        ON DUPLICATE KEY UPDATE ip_address = ?, last_comment_date = NOW()";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $userFingerprint, $ip, $ip);
         $stmt->execute();
