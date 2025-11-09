@@ -504,6 +504,7 @@ function offerCertificate(percentage, userAnswers) {
 <div class="button-row">
   <p>What to do next ></p>
   <div class="buttons">
+    <a href="#" onclick="spawnCommentSystem(event)" class="a-button">Leave a comment</a>
     <a onclick="shareOnX(${percentage})" class="a-button">
       <img src="/assets/img/twitter-x-line.svg" width=24/>
       Share on X
@@ -548,7 +549,7 @@ async function handleQuizDisplay() {
   <p>You can still check NoSkid Services ></p>
   <div class="buttons">
     <a href="https://blog.noskid.today/?p=3-noskid-services" target="_blank" class="a-button">Services</a>
-    <a href="https://noskid.today/#spawnCommentSystem" target="_blank" class="a-button">Leave a comment</a>
+    <a href="#" onclick="spawnCommentSystem(event)" class="a-button">Leave a comment</a>
   </div>
 </div>
 `;
@@ -595,7 +596,7 @@ function shareOnX(score) {
   const hashtags = 'NoSkid,Certificate,IT';
 
   const tweetUrl = `${baseUrl}?text=${encodeURIComponent(text)}&hashtags=${encodeURIComponent(hashtags)}`;
-  
+
   window.open(tweetUrl, '_blank', 'width=550,height=420');
 
   log('Share on X clicked!', 'success');

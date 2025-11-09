@@ -7,6 +7,7 @@ let skippedCert = false;
 
 function spawnCommentSystem(event) {
     event.preventDefault();
+    scrollToTop();
 
     startAchievement('Super Commenter');
 

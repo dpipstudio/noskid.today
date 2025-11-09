@@ -51,6 +51,13 @@ function hideNotification() {
     }
 }
 
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
 class ScriptLoader {
     constructor(consoleElement) {
         this.consoleElement = consoleElement;
