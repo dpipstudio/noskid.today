@@ -6,7 +6,6 @@ require_once '../config.php';
 require_once '../files/getip.php';
 require_once '../files/notifications.php';
 
-
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
@@ -15,9 +14,9 @@ if ($conn->connect_error) {
     exit;
 }
 
-// utility
+// UTILITY FUNCTIONS
 
-function getUserFingerprint()
+function getUserIdentifier()
 {
     $ip = getRequesterIp();
     $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -43,35 +42,29 @@ function blockIp($conn, $ip)
     $stmt->execute();
 }
 
-function checkSkidGuardKey($key)
+function checkAndRetrieveKey($key)
 {
-    // key generated from bin2hex(random_bytes(32))
-
-    if (empty($key)) {
-        return false;
-    }
-
-    if (strlen($key) !== 64) {
-        return false;
-    }
-
-    if (!ctype_xdigit($key)) {
+    if (empty($key) || strlen($key) !== 64 || !ctype_xdigit($key)) {
         return false;
     }
 
     global $conn;
 
-    $sql = "SELECT id FROM cert WHERE verification_key LIKE ?";
+    $sql = "SELECT id, name FROM cert WHERE verification_key LIKE ?";
     $stmt = $conn->prepare($sql);
     $searchPattern = $key . '|%';
     $stmt->bind_param("s", $searchPattern);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    return $result->num_rows > 0;
+    if ($result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+    
+    return false;
 }
 
-// api funcs
+// API FUNCTIONS
 
 function buildCommentTree($comments)
 {
@@ -112,16 +105,16 @@ function buildCommentTree($comments)
     return $tree;
 }
 
-function getComments($conn, $userFingerprint)
+function getComments($conn, $userIdentifier)
 {
     $sql = "SELECT cp.id, cp.author, cp.content, cp.created_at as date,
-            cp.likes, cp.dislikes, cp.reply_to,
-            (SELECT reaction_type FROM comments_reactions WHERE comment_id = cp.id AND user_fingerprint = ?) as user_reaction
+            cp.likes, cp.dislikes, cp.reply_to, cp.is_verified,
+            (SELECT reaction_type FROM comments_reactions WHERE comment_id = cp.id AND user_identifier = ?) as user_reaction
             FROM comments_posts cp
             ORDER BY cp.created_at DESC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $userFingerprint);
+    $stmt->bind_param("s", $userIdentifier);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -135,6 +128,7 @@ function getComments($conn, $userFingerprint)
     while ($row = $result->fetch_assoc()) {
         $row['content'] = htmlspecialchars($row['content'], ENT_QUOTES, 'UTF-8');
         $row['author'] = htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8');
+        $row['is_verified'] = (bool)$row['is_verified'];
         $comments[] = $row;
     }
 
@@ -142,29 +136,9 @@ function getComments($conn, $userFingerprint)
     echo json_encode($commentTree);
 }
 
-function addComment($conn, $userFingerprint, $ip)
+function addComment($conn, $ip)
 {
     $data = json_decode(file_get_contents('php://input'), true);
-    if (!isset($data['skey']) || !checkSkidGuardKey($data['skey'])) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Invalid or missing SkidGuard key']);
-        return;
-    }
-
-
-    $tenMinutesAgo = date('Y-m-d H:i:s', strtotime('-10 minutes'));
-    $sql = "SELECT * FROM comments_posts WHERE user_fingerprint = ? AND created_at > ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $userFingerprint, $tenMinutesAgo);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        http_response_code(429);
-        echo json_encode(['error' => 'Please wait 10 minutes between posts']);
-        return;
-    }
-
 
     if (!isset($data['content']) || empty(trim($data['content']))) {
         http_response_code(400);
@@ -172,13 +146,43 @@ function addComment($conn, $userFingerprint, $ip)
         return;
     }
 
-    $author = isset($data['author']) && !empty(trim($data['author'])) ?
+    $authorInput = isset($data['author']) && !empty(trim($data['author'])) ?
         trim($data['author']) : 'Anonymous';
+    
+    // Check if author is a valid verification key
+    $keyData = checkAndRetrieveKey($authorInput);
+    
+    if ($keyData !== false) {
+        // It's a verified key so use the name from cert table
+        $author = $keyData['name'];
+        $isVerified = 1;
+        $rateLimitKey = $authorInput;
+    } else {
+        // It's a regular username
+        $author = $authorInput;
+        $isVerified = 0;
+        $rateLimitKey = $ip;
+    }
+
+    $tenMinutesAgo = date('Y-m-d H:i:s', strtotime('-10 minutes'));
+    $sql = "SELECT * FROM comments_posts WHERE rate_limit_key = ? AND created_at > ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $rateLimitKey, $tenMinutesAgo);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        http_response_code(429);
+        $tenMinutesAgo = date('Y-m-d H:i:s', strtotime('-10 minutes'));
+        error_log("Rate limit check for IP: $rateLimitKey, Time threshold: $tenMinutesAgo");
+
+        echo json_encode(['error' => 'Please wait 10 minutes between posts']);
+        return;
+    }
 
     $content = trim($data['content']);
     $replyTo = isset($data['reply_to']) && !empty($data['reply_to']) ? intval($data['reply_to']) : null;
 
-    // Validate reply_to exists if provided
     if ($replyTo !== null) {
         $sql = "SELECT id FROM comments_posts WHERE id = ?";
         $stmt = $conn->prepare($sql);
@@ -193,21 +197,15 @@ function addComment($conn, $userFingerprint, $ip)
         }
     }
 
-    $sql = "INSERT INTO comments_posts (author, content, user_fingerprint, ip_address, reply_to) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO comments_posts (author, content, ip_address, reply_to, is_verified, rate_limit_key) 
+            VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssi", $author, $content, $userFingerprint, $ip, $replyTo);
+    $stmt->bind_param("sssiss", $author, $content, $ip, $replyTo, $isVerified, $rateLimitKey);
 
     if ($stmt->execute()) {
         $comment_id = $stmt->insert_id;
 
-        $sql = "INSERT INTO comments_users (user_fingerprint, ip_address, last_comment_date)
-        VALUES (?, ?, NOW())
-        ON DUPLICATE KEY UPDATE ip_address = ?, last_comment_date = NOW()";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $userFingerprint, $ip, $ip);
-        $stmt->execute();
-
-        $sql = "SELECT id, author, content, created_at as date, likes, dislikes, reply_to, NULL as user_reaction
+        $sql = "SELECT id, author, content, created_at as date, likes, dislikes, reply_to, is_verified, NULL as user_reaction
                 FROM comments_posts WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $comment_id);
@@ -215,6 +213,7 @@ function addComment($conn, $userFingerprint, $ip)
         $result = $stmt->get_result();
         $comment = $result->fetch_assoc();
         $comment['replies'] = [];
+        $comment['is_verified'] = (bool)$comment['is_verified'];
 
         if (defined('NOTIFICATIONS_ENDPOINT') && !empty(NOTIFICATIONS_ENDPOINT)) {
             sendNotification('new_comment', [
@@ -232,7 +231,7 @@ function addComment($conn, $userFingerprint, $ip)
     }
 }
 
-function handleReaction($conn, $commentId, $userFingerprint, $reactionType)
+function handleReaction($conn, $commentId, $userIdentifier, $reactionType)
 {
     $sql = "SELECT * FROM comments_posts WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -249,18 +248,18 @@ function handleReaction($conn, $commentId, $userFingerprint, $reactionType)
     $conn->begin_transaction();
 
     try {
-        $sql = "SELECT reaction_type FROM comments_reactions WHERE comment_id = ? AND user_fingerprint = ?";
+        $sql = "SELECT reaction_type FROM comments_reactions WHERE comment_id = ? AND user_identifier = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("is", $commentId, $userFingerprint);
+        $stmt->bind_param("is", $commentId, $userIdentifier);
         $stmt->execute();
         $result = $stmt->get_result();
         $currentReaction = $result->num_rows > 0 ? $result->fetch_assoc()['reaction_type'] : null;
 
         if ($reactionType === 'none') {
             if ($currentReaction) {
-                $sql = "DELETE FROM comments_reactions WHERE comment_id = ? AND user_fingerprint = ?";
+                $sql = "DELETE FROM comments_reactions WHERE comment_id = ? AND user_identifier = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("is", $commentId, $userFingerprint);
+                $stmt->bind_param("is", $commentId, $userIdentifier);
                 $stmt->execute();
 
                 $field = $currentReaction === 'like' ? 'likes' : 'dislikes';
@@ -271,9 +270,9 @@ function handleReaction($conn, $commentId, $userFingerprint, $reactionType)
             }
         } else {
             if ($currentReaction === null) {
-                $sql = "INSERT INTO comments_reactions (comment_id, user_fingerprint, reaction_type) VALUES (?, ?, ?)";
+                $sql = "INSERT INTO comments_reactions (comment_id, user_identifier, reaction_type) VALUES (?, ?, ?)";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iss", $commentId, $userFingerprint, $reactionType);
+                $stmt->bind_param("iss", $commentId, $userIdentifier, $reactionType);
                 $stmt->execute();
 
                 $field = $reactionType === 'like' ? 'likes' : 'dislikes';
@@ -282,9 +281,9 @@ function handleReaction($conn, $commentId, $userFingerprint, $reactionType)
                 $stmt->bind_param("i", $commentId);
                 $stmt->execute();
             } elseif ($currentReaction !== $reactionType) {
-                $sql = "UPDATE comments_reactions SET reaction_type = ? WHERE comment_id = ? AND user_fingerprint = ?";
+                $sql = "UPDATE comments_reactions SET reaction_type = ? WHERE comment_id = ? AND user_identifier = ?";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("sis", $reactionType, $commentId, $userFingerprint);
+                $stmt->bind_param("sis", $reactionType, $commentId, $userIdentifier);
                 $stmt->execute();
 
                 $oldField = $currentReaction === 'like' ? 'likes' : 'dislikes';
@@ -299,10 +298,10 @@ function handleReaction($conn, $commentId, $userFingerprint, $reactionType)
         $conn->commit();
 
         $sql = "SELECT id, likes, dislikes,
-                (SELECT reaction_type FROM comments_reactions WHERE comment_id = ? AND user_fingerprint = ?) as user_reaction
+                (SELECT reaction_type FROM comments_reactions WHERE comment_id = ? AND user_identifier = ?) as user_reaction
                 FROM comments_posts WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isi", $commentId, $userFingerprint, $commentId);
+        $stmt->bind_param("isi", $commentId, $userIdentifier, $commentId);
         $stmt->execute();
         $result = $stmt->get_result();
         $comment = $result->fetch_assoc();
@@ -317,7 +316,7 @@ function handleReaction($conn, $commentId, $userFingerprint, $reactionType)
 
 // MAIN EXECUTION LOGIC
 
-$userFingerprint = getUserFingerprint();
+$userIdentifier = getUserIdentifier();
 $ip = getRequesterIp();
 
 if (isIpBlocked($conn, $ip)) {
@@ -333,13 +332,13 @@ $commentId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 switch ($method) {
     case 'GET':
         if ($action === 'like' || $action === 'dislike' || $action === 'none') {
-            handleReaction($conn, $commentId, $userFingerprint, $action);
+            handleReaction($conn, $commentId, $userIdentifier, $action);
         } else {
-            getComments($conn, $userFingerprint);
+            getComments($conn, $userIdentifier);
         }
         break;
     case 'POST':
-        addComment($conn, $userFingerprint, $ip);
+        addComment($conn, $ip);
         break;
     default:
         http_response_code(405);
