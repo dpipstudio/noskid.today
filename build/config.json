@@ -58,6 +58,7 @@
     "achievement",
     "completed",
     "noskid",
-    "today"
+    "today",
+    "isUpdating"
   ]
 }
