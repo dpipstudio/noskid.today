@@ -11,7 +11,7 @@ A modern, feature-rich version of [nohello.net](https://nohello.net) with advanc
 ---
 
 ## Introduction
-NoSkid.Today is a PHP-based website designed to prevent skids and provide a variety of hidden, advanced features for verified users. It is heavily inspired by [nohello.net](https://nohello.net) but comes with a modern twist.  
+NoSkid.Today is a website designed to prevent skids and provide a variety of hidden, advanced features for verified users. It is heavily inspired by [nohello.net](https://nohello.net) but comes with a modern twist.  
 The NoSkid Project is a group of every official tool based or using NoSkid services.
 
 ## Structure
