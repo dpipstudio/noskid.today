@@ -112,6 +112,10 @@
   scrollbar-color: #4a4a4a #0a0a0a;
 }
 
+.console.hidden {
+  display: none;
+}
+
 .console::-webkit-scrollbar {
   width: 8px;
 }

@@ -234,8 +234,8 @@ class ScriptLoader {
     async checkForUpdates() {
         try {
             log('Checking for updates...', 'info');
-            
-            const storedVersion = localStorage.getItem('latest'); 
+
+            const storedVersion = localStorage.getItem('latest');
 
             const response = await fetch('/api/latest/');
 
@@ -254,13 +254,13 @@ class ScriptLoader {
                 log(`New version detected: ${latestVersion}`, 'warning');
                 localStorage.setItem('latest', latestVersion);
                 localStorage.setItem('isUpdating', 'true');
-                
+
                 log('Reloading to get latest version...', 'warning');
-                
-                
+
+
                 window.location.reload(true); // only refreshs cache on firefox, if anyone has a better way of doing it please do it
-                
-                
+
+
                 return true;
             } else {
                 log(`Up to date! (${latestVersion})`, 'success');
@@ -284,7 +284,7 @@ class ScriptLoader {
         }
 
         const needsUpdate = await this.checkForUpdates();
-        
+
         if (needsUpdate) {
             return;
         }
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pref = localStorage.getItem('showLoaderConsole');
     if (pref === 'true') {
-        consoleEl.style.display = 'block';
+        consoleEl.classList.remove('hidden');
         consoleLink.textContent = 'Hide logs';
     } else {
         consoleEl.style.display = 'none';
@@ -347,18 +347,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     consoleLink.classList.remove('hidden');
 
-    consoleLink.addEventListener('click', (e) => {
+    consoleLink.addEventListener('click', e => {
         e.preventDefault();
-        const isVisible = consoleEl.style.display === 'block';
-
-        if (isVisible) {
-            consoleEl.style.display = 'none';
-            consoleLink.textContent = 'Show logs';
-            localStorage.setItem('showLoaderConsole', 'false');
-        } else {
-            consoleEl.style.display = 'block';
-            consoleLink.textContent = 'Hide logs';
-            localStorage.setItem('showLoaderConsole', 'true');
-        }
+        consoleEl.classList.toggle('hidden');
+        const isVisible = !consoleEl.classList.contains('hidden');
+        consoleLink.textContent = isVisible ? 'Hide logs' : 'Show logs';
+        localStorage.setItem('showLoaderConsole', isVisible);
     });
+
 });
