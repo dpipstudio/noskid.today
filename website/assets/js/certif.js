@@ -544,7 +544,7 @@ async function handleQuizDisplay() {
   if (localStorage.getItem('quizTaken') === 'true') {
     const message = document.createElement('p');
     message.innerHTML = `<h3><span class="red" style="font-size: 24px;">×</span> You have already taken this test.</h3>
-<p> <em>Pss.. You can still do the quiz again by typing 'bypass'</em></p>
+<p> <em>Pss.. You can redo the quiz by typing 'bypass'</em></p>
 <div class="button-row">
   <p>You can still check NoSkid Services ></p>
   <div class="buttons">
