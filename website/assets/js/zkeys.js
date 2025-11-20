@@ -88,7 +88,7 @@ const sequences = {
     },
     'check': {
         action: verifyCertificate,
-        description: 'Check if a certificate is valid and get informations about it'
+        description: 'Check if a certificate is valid'
     },
     'gary': {
         action: showGary,
