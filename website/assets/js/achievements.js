@@ -613,7 +613,7 @@ function getTotalPercent() {
         .reduce((sum, achievement) => sum + achievement.percent, 0);
 }
 
-function preloadAchievements() {
+async function preloadAchievements() {
     const userId = getUserId();
 
     let url = '/api/achievement/?action=get';
@@ -658,4 +658,4 @@ function checkAllAchievementsCompleted() {
     }
 }
 
-preloadAchievements();
+await preloadAchievements();
