@@ -658,4 +658,7 @@ function checkAllAchievementsCompleted() {
     }
 }
 
-await preloadAchievements();
+(async function() {
+    await preloadAchievements();
+})();
+
