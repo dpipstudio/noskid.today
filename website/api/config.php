@@ -165,12 +165,11 @@ $achievements = [
         'description' => 'Set up and use the RQ request catcher with certificate',
         'time' => 5
     ],
-
     [
         'name' => 'Night Owl',
         'percent' => 38,
-        'description' => 'Switch between night mode and classic mode 10 times',
-        'time' => 1
+        'description' => 'Switch between night mode and light mode 10 times',
+        'time' => 10
     ],
     [
         'name' => 'Websocket Socializer',
