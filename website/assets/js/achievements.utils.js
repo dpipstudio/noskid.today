@@ -4,12 +4,12 @@
 // Screen Wizard \\
 
 let resizeCount = 0;
-let resizeTimeouta = null; // 'a' cuz resizeTimeout is already used in night.js ( idk why )
+let resizeTimeout = null; 
 
 window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeouta);
+  clearTimeout(resizeTimeout);
 
-  resizeTimeouta = setTimeout(() => {
+  resizeTimeout = setTimeout(() => {
     if (resizeCount === 0) startAchievement('Screen Wizard');
     resizeCount++;
 
@@ -106,3 +106,31 @@ if (isFromSearchEngine()) {
     addAchievement("Searcher's Path");
   }, 1000); // to avoid the ClassicWindow is not defined error
 }
+
+// Searcher's Path \\
+
+// Night Owl \\
+
+let themeSwitchCount = 0;
+let nightOwlStarted = false;
+
+const themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function handleThemeChange(e) {
+  if (!nightOwlStarted) {
+    startAchievement('Night Owl');
+    nightOwlStarted = true;
+  }
+
+  themeSwitchCount++;
+
+  if (themeSwitchCount === 10) {
+    addAchievement('Night Owl');
+  }
+}
+
+if (themeQuery.addEventListener) {
+  themeQuery.addEventListener('change', handleThemeChange);
+}
+
+// Night Owl \\
