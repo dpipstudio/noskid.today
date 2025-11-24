@@ -34,14 +34,6 @@ function isIpBlocked($conn, $ip)
     return $result->num_rows > 0;
 }
 
-function blockIp($conn, $ip)
-{
-    $sql = "INSERT INTO comments_blocked_ips (ip_address) VALUES (?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $ip);
-    $stmt->execute();
-}
-
 function checkAndRetrieveKey($key)
 {
     if (empty($key) || strlen($key) !== 64 || !ctype_xdigit($key)) {
@@ -197,10 +189,12 @@ function addComment($conn, $ip)
         }
     }
 
-    $sql = "INSERT INTO comments_posts (author, content, ip_address, reply_to, is_verified, rate_limit_key) 
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $createdAt = date('Y-m-d H:i:s');
+
+    $sql = "INSERT INTO comments_posts (author, content, ip_address, reply_to, is_verified, rate_limit_key, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssiss", $author, $content, $ip, $replyTo, $isVerified, $rateLimitKey);
+    $stmt->bind_param("sssisss", $author, $content, $ip, $replyTo, $isVerified, $rateLimitKey, $createdAt);
 
     if ($stmt->execute()) {
         $comment_id = $stmt->insert_id;
