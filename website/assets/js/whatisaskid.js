@@ -1,6 +1,6 @@
 //Whatisaskid.js | Helper popup
 
-const whatIsASkid = document.getElementById("whatIsASkid");
+const whatIsASkidSpan = document.getElementById("whatIsASkid");
 
 const popup = document.createElement("div");
 popup.className = "whatIsASkid";
@@ -47,8 +47,8 @@ function hidePopup() {
     }, 100);
 }
 
-whatIsASkid.addEventListener("mouseenter", showPopup);
-whatIsASkid.addEventListener("mouseleave", hidePopup);
+whatIsASkidSpan.addEventListener("mouseenter", showPopup);
+whatIsASkidSpan.addEventListener("mouseleave", hidePopup);
 
 popup.addEventListener("mouseenter", showPopup);
 popup.addEventListener("mouseleave", hidePopup);
