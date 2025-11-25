@@ -234,7 +234,7 @@ button:hover {
 
 .a-button {
   display: inline-flex;
-  align-items: center; 
+  align-items: center;
   justify-content: center;
   background-color: var(--secondary);
   color: #1a1a1a;
@@ -273,6 +273,106 @@ button:hover {
   gap: 10px;
 }
 
+.whatIsASkid {
+  position: fixed;
+  max-width: 280px;
+  background: var(--primary);
+  color: var(--text);
+  border: 2px solid var(--secondary);
+  padding: 10px;
+  border-radius: 6px;
+  z-index: 8888;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: top left;
+  max-height: 0;
+  width: 0;
+  padding: 0;
+  transition: none;
+  overflow-y: auto;
+}
+
+.whatIsASkid.show {
+  animation: unroll 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: auto;
+}
+
+.whatIsASkid.hide {
+  animation: fold 0.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.whatIsASkid ul {
+  margin: 10px 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.whatIsASkid li {
+  margin-bottom: 8px;
+  position: relative;
+  padding-left: 20px;
+  line-height: 1.35;
+}
+
+.whatIsASkid li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--secondary);
+  font-weight: bold;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+
+/*animations */
+@keyframes unroll {
+  0% {
+    opacity: 1;
+    max-height: 2px;
+    width: 100px;
+    padding: 0 10px;
+  }
+
+  40% {
+    max-height: 2px;
+    width: 280px;
+  }
+
+  100% {
+    opacity: 1;
+    max-height: 500px;
+    width: 280px;
+    padding: 10px;
+  }
+}
+
+
+@keyframes fold {
+  0% {
+    opacity: 1;
+    max-height: 500px;
+    width: 280px;
+    padding: 10px;
+  }
+
+  60% {
+    max-height: 2px;
+    width: 280px;
+    padding: 0 10px;
+  }
+
+  100% {
+    opacity: 1;
+    max-height: 2px;
+    width: 0;
+    padding: 0;
+  }
+}
 
 footer {
   margin-top: 60px;

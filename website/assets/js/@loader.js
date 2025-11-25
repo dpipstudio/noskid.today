@@ -97,6 +97,7 @@ class ScriptLoader {
             'assets/js/update.js',
             'assets/js/warning.js',
             'assets/js/websocket.js',
+            'assets/js/whatisaskid.js',
             'assets/js/zkeys.js',
         ];
         this.loadedCount = 0;

@@ -107,6 +107,14 @@
     width: 36px;
     height: 36px;
   }
+
+  .whatIsASkid {
+    left: 50% !important;
+    top: auto !important;
+    bottom: 20px !important;
+    transform: translateX(-50%);
+    max-width: 90%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -229,5 +237,13 @@
 
   .achievement-checkbox:checked::after {
     font-size: 12px;
+  }
+
+  .whatIsASkid {
+    left: 50% !important;
+    bottom: 15px !important;
+    top: auto !important;
+    transform: translateX(-50%);
+    max-width: 95%;
   }
 }
