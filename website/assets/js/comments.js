@@ -870,7 +870,7 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
             alert('Verification failed, please try again.');
         },
         noskid: {
-            apiUrl: 'https://noskid.theserver.life/api/checkcert/'
+            apiUrl: '%%CHECK_API_URL%%'
         }
     });
 
