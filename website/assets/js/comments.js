@@ -1,4 +1,4 @@
-//Comments.js | Comment system for noskid with threaded replies
+//Comments.js | Comment system for noskid
 
 let skidguardToken = null;
 let skidguardWidgetId = null;
