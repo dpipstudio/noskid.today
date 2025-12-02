@@ -59,6 +59,7 @@
     "completed",
     "noskid",
     "today",
-    "isUpdating"
+    "isUpdating",
+    "textarea"
   ]
 }
