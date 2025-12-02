@@ -4,6 +4,8 @@ let skidguardToken = null;
 let skidguardWidgetId = null;
 let certificateData = null;
 let skippedCert = false;
+let currentUsername = localStorage.getItem('commentsUsername');
+let allUsernames = [];
 
 function spawnCommentSystem(event) {
     event.preventDefault();
@@ -123,6 +125,7 @@ function addCommentSystemStyles() {
             margin-bottom: 10px;
             padding-bottom: 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
         }
 
         .comment-author {
@@ -283,7 +286,6 @@ function addCommentSystemStyles() {
             white-space: nowrap;
         }
 
-
         .filter-checkbox label {
             cursor: pointer;
             user-select: none;
@@ -297,6 +299,7 @@ function addCommentSystemStyles() {
 
         .form-group {
             margin-bottom: 15px;
+            position: relative;
         }
 
         .form-group label {
@@ -430,6 +433,74 @@ function addCommentSystemStyles() {
             background: rgba(255, 255, 255, 0.15);
         }
 
+        .comment-mention {
+            background: rgba(137, 180, 250, 0.2);
+            border-radius: 3px;
+            padding: 0 3px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .comment-mention.mention-you {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        .comment-mention-icon {
+            color: #ffd700;
+            font-size: 14px;
+            margin-right: 4px;
+            font-weight: bold;
+        }
+
+        .mentions-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--box);
+            border: var(--border);
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 5px;
+        }
+
+        .mentions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mentions-list li {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .mentions-list li:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mentions-list li.active {
+            background: rgba(137, 180, 250, 0.2);
+        }
+
+        .comment-link, .comment-link:visited {
+            color: var(--secondary);
+            text-decoration: none;
+            word-break: break-all;
+            transition: color 0.2s ease;
+            border-bottom: 1px solid rgba(137, 180, 250, 0.3);
+        }
+
+        .comment-link:hover {
+            color: var(--text);
+            border-bottom-color: var(--text);
+        }
+
         #skidguard-captcha {
             padding: 10px 0;
             display: flex;
@@ -452,11 +523,13 @@ function loadComments(commentwin) {
             if (Array.isArray(data)) {
                 // Store full data on window for filtering
                 commentwin.commentsData = data;
-                
+
                 // Get current filter state
                 const verifiedFilter = commentwin.querySelector('#verifiedFilter');
                 const showVerifiedOnly = verifiedFilter ? verifiedFilter.checked : true;
-                
+
+                allUsernames = [...new Set(data.map(cmt => cmt.author))];
+
                 displayComments(commentwin, data, showVerifiedOnly);
             } else {
                 throw new Error('Invalid data format');
@@ -487,7 +560,7 @@ function filterComments(comments, showVerifiedOnly) {
     if (!showVerifiedOnly) {
         return comments;
     }
-    
+
     return comments.filter(comment => {
         if (!comment.is_verified) {
             return false;
@@ -505,23 +578,47 @@ function renderComment(comment, parentAuthor = null, showVerifiedBadge = true) {
     const userDisliked = comment.user_reaction === 'dislike';
     const hasReplies = comment.replies && comment.replies.length > 0;
     const isVerified = comment.is_verified;
+    const mentionsUser = currentUsername && comment.content.includes(`@${currentUsername}`);
 
     const displayAuthor = parentAuthor
         ? `${comment.author || 'Anonymous'} → ${parentAuthor}`
         : (comment.author || 'Anonymous');
 
     // Show badge only if: 1) comment is verified AND 2) we're showing unverified comments (so badge is needed)
-    const verifiedBadge = isVerified && showVerifiedBadge 
-        ? '<span class="verified-badge">✓</span>' 
+    const verifiedBadge = isVerified && showVerifiedBadge
+        ? '<span class="verified-badge">✓</span>'
         : '';
+
+    // Add @ if user is mentioned
+    const mentionIcon = mentionsUser
+        ? '<span class="comment-mention-icon">@</span>'
+        : '';
+
+    let content = detectAndLinkify(comment.content);
+
+    if (currentUsername && allUsernames.includes(currentUsername)) {
+        const userMentionRegex = new RegExp(`@${currentUsername}(?=\\s|$|[.,;:!?)])`, 'g');
+        content = content.replace(userMentionRegex, `<span class="comment-mention mention-you">@${currentUsername}</span>`);
+    }
+
+    const otherMentionRegex = /@(\w+)(?=\s|$|[.,;:!?)])/g;
+    content = content.replace(otherMentionRegex, (match, username) => {
+        if (currentUsername && username === currentUsername) {
+            return match;
+        }
+        if (allUsernames.includes(username)) {
+            return `<span class="comment-mention">@${username}</span>`;
+        }
+        return match;
+    });
 
     let html = `
         <div class="comment" data-id="${comment.id}">
             <div class="comment-header">
-                <span class="comment-author">${displayAuthor}${verifiedBadge}</span>
+                <span class="comment-author">${mentionIcon}${displayAuthor}${verifiedBadge}</span>
                 <span class="comment-date">${formatDate(comment.date)}</span>
             </div>
-            <div class="comment-content">${comment.content}</div>
+            <div class="comment-content">${content}</div>
             <div class="comment-actions">
                 <button class="reaction-btn ${userLiked ? 'active' : ''}" 
                         onclick="handleReaction(${comment.id}, '${userLiked ? 'none' : 'like'}')">
@@ -558,10 +655,10 @@ function displayComments(window, comments, showVerifiedOnly = true) {
     const filteredComments = filterComments(JSON.parse(JSON.stringify(comments)), showVerifiedOnly);
 
     if (filteredComments.length === 0) {
-        const message = showVerifiedOnly 
+        const message = showVerifiedOnly
             ? 'No verified comments yet. Uncheck "Verified only" to see all comments.'
             : 'No comments yet. Be the first to comment!';
-        
+
         container.innerHTML = `
             <div class="no-comments">
                 <p>${message}</p>
@@ -696,6 +793,9 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
                     <div class="form-group">
                         <label for="content">Comment:</label>
                         <textarea id="content" required rows="5" placeholder="Write your comment here..."></textarea>
+                        <div class="mentions-dropdown" style="display: none;">
+                            <ul class="mentions-list"></ul>
+                        </div>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="form-btn secondary cancel">Cancel</button>
@@ -716,6 +816,8 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
             }
         }
     });
+
+    setupMentionsAutocomplete(newCommentWin);
 
     const form = newCommentWin.querySelector('#commentForm');
     const verifyStep = newCommentWin.querySelector('#verifyStep');
@@ -744,15 +846,21 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
 
             skidguardToken = token; // This is the 64-char hex key
             certificateData = certData;
-            
+
             console.log('[OK] Verified with certificate', certData);
             console.log('[TOKEN] Verification key:', token);
             log('SkidGuard verification successful', 'success');
 
+            let usrnm = certData.nickname || certData.username || 'Verified User';
+
             // puts username from certificate and make readonly
-            authorInput.value = certData.nickname || certData.username || 'Verified User';
+            authorInput.value = usrnm;
             authorInput.readOnly = true;
-            
+
+            // saves username for mentions
+            localStorage.setItem('commentsUsername', usrnm);
+            currentUsername = usrnm;
+
             verifyStep.style.display = 'none';
             form.style.display = 'block';
         },
@@ -762,7 +870,7 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
             alert('Verification failed, please try again.');
         },
         noskid: {
-            apiUrl: '%%CHECK_API_URL%%'
+            apiUrl: 'https://noskid.theserver.life/api/checkcert/'
         }
     });
 
@@ -786,6 +894,83 @@ function spawnNewCommentForm(replyTo = null, replyToAuthor = null) {
     });
 
     return newCommentWin;
+}
+
+function detectAndLinkify(text) {
+    const urlRegex = /(https?:\/\/[^\s<]+[^\s<.,;:!?)])/gi;
+
+    return text.replace(urlRegex, (url) => {
+        let cleanUrl = url;
+        const trailingPunctuation = /[.,;:!?)]$/;
+        let trailing = '';
+
+        while (trailingPunctuation.test(cleanUrl)) {
+            trailing = cleanUrl.slice(-1) + trailing;
+            cleanUrl = cleanUrl.slice(0, -1);
+        }
+
+        return `<a href="${cleanUrl}" target="_blank" class="comment-link">${cleanUrl}</a>${trailing}`;
+    });
+}
+
+function setupMentionsAutocomplete(form) {
+    const textarea = form.querySelector('#content');
+    const dropdown = form.querySelector('.mentions-dropdown');
+    const list = form.querySelector('.mentions-list');
+
+    if (!textarea || !dropdown || !list) {
+        console.error('Mentions elements not found');
+        return;
+    }
+
+    textarea.addEventListener('input', (e) => {
+        const cursorPos = textarea.selectionStart;
+        const textBeforeCursor = textarea.value.substring(0, cursorPos);
+        const atIndex = textBeforeCursor.lastIndexOf('@');
+
+        if (atIndex !== -1) {
+            const query = textBeforeCursor.substring(atIndex + 1);
+            // Check if there's no space after @ (still typing the mention)
+            if (!query.includes(' ')) {
+                const matches = allUsernames.filter(username =>
+                    username.toLowerCase().startsWith(query.toLowerCase())
+                );
+
+                if (matches.length > 0 && query.length > 0) {
+                    list.innerHTML = matches.map(username =>
+                        `<li data-username="${username}">${username}</li>`
+                    ).join('');
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            } else {
+                dropdown.style.display = 'none';
+            }
+        } else {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    list.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+            const username = e.target.getAttribute('data-username');
+            const cursorPos = textarea.selectionStart;
+            const textBeforeCursor = textarea.value.substring(0, cursorPos);
+            const atIndex = textBeforeCursor.lastIndexOf('@');
+            const newText = textBeforeCursor.substring(0, atIndex) + `@${username} ` + textarea.value.substring(cursorPos);
+            textarea.value = newText;
+            textarea.selectionStart = textarea.selectionEnd = atIndex + username.length + 2;
+            dropdown.style.display = 'none';
+            textarea.focus();
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!textarea.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
 }
 
 function spawnReplyForm(commentId, parentAuthor) {
@@ -822,7 +1007,7 @@ function submitComment(form, commentWindow, replyTo = null) {
     // - If user has certificate: send the token (64-char hex key)
     // - If user skipped cert: send their entered username (or empty for Anonymous)
     let authorToSend;
-    
+
     if (skippedCert) {
         // No certificate - send username as-is
         authorToSend = authorValue || 'Anonymous';
