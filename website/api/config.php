@@ -28,26 +28,6 @@ define('ETC_PWD', 'etcpwd');
 define('SHOW_API_HELP', true);
 
 //certificate questions
-$questions = [
-    [
-        'question' => 'Should I star noskid on GitHub?',
-        'answers' => [
-            'Yes'
-        ],
-        'correct' => 0
-    ],
-    [
-        'question' => 'And if i don\'t want to?',
-        'answers' => [
-            'I should star NoSkid anyways',
-            'I can just ignore it'
-        ],
-        'correct' => 0
-    ]
-];
-
-
-//achievements
 $achievements = [
     [
         'name' => 'Certified NoSkid',
@@ -68,12 +48,17 @@ $achievements = [
         'time' => 2
     ],
     [
+        'name' => 'Searcher\'s Path',
+        'percent' => 40,
+        'description' => 'You found us through the vast maze of the internet. (Come from a search engine)',
+        'time' => 0
+    ],
+    [
         'name' => 'Secret Certificate Hunter',
         'percent' => 18,
         'description' => 'Discover the ultra secret certificate',
         'time' => 2
     ],
-
     [
         'name' => 'Super Commenter',
         'percent' => 30,
@@ -161,7 +146,7 @@ $achievements = [
     ],
     [
         'name' => 'Request Catcher',
-        'percent' => 30,
+        'percent' => 10,
         'description' => 'Set up and use the RQ request catcher with certificate',
         'time' => 5
     ],
@@ -185,8 +170,8 @@ $achievements = [
     ],
     [
         'name' => 'URL Hacker',
-        'percent' => 38,
-        'description' => 'Access a feature using a URL fragment (#)',
+        'percent' => 18,
+        'description' => 'Access a feature using a URL fragment',
         'time' => 0
     ],
     [
@@ -208,6 +193,5 @@ $achievements = [
         'time' => 0
     ]
 ];
-
 
 ?>
