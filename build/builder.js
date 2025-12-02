@@ -782,6 +782,13 @@ class NoSkidBuilder {
             fs.writeFileSync(newScriptPath, minified);
             newScriptNames.set(script, `assets/js/${newName}`);
 
+            if (!script.startsWith('http')) {
+                const originalBuildPath = path.join(this.buildDir, script);
+                if (fs.existsSync(originalBuildPath)) {
+                    fs.unlinkSync(originalBuildPath);
+                }
+            }
+
             log(`Processed: ${originalName} -> ${newName}`, 'success');
         }
 
