@@ -50,7 +50,7 @@ function toggleTrack() {
     const next = currentTrackState === 'true' ? 'false' : 'true';
 
     localStorage.setItem('dpipTrack', next);
-    log(`Set dpipTrack to ${next} !`);
+    log(`Set dpipTrack to ${next} !`, 'success');
 }
 
 showStats();
