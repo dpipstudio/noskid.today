@@ -121,6 +121,10 @@ const sequences = {
     'sstv': {
         action: showSstv,
         description: 'Try to find the secret certificate',
+    },
+    'track': {
+        action: toggleTrack,
+        description: 'Toggles on and off visit analytics',
     }
 };
 

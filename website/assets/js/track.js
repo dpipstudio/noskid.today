@@ -7,9 +7,10 @@ async function showStats() {
     if (unique_views == -1) {
         if (localStorage.getItem('dpipTrack') === 'false') {
             log('dpipTrack set to false, not tracking.', 'warning');
-        } else {
-            await getReqCount();
-        }
+            return;
+        } 
+        
+        await getReqCount();
 
         logStats();
     } else {
@@ -41,6 +42,15 @@ function logStats() {
     log("=-=-=-=-=-=-=-=-==-=-==-=-=", 'warning');
     log('', 'warning');
 
+}
+
+function toggleTrack() {
+
+    const currentTrackState = localStorage.getItem('dpipTrack') ?? 'true';
+    const next = currentTrackState === 'true' ? 'false' : 'true';
+
+    localStorage.setItem('dpipTrack', next);
+    log(`Set dpipTrack to ${next} !`);
 }
 
 showStats();
