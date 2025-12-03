@@ -346,7 +346,8 @@ Certificate Details:
                 return {
                     valid: false,
                     message: apiData.message,
-                    cached: apiData.cached || false
+                    cached: apiData.cached || false,
+                    strictCheck: this.strictCheck
                 };
             }
 
@@ -356,7 +357,8 @@ Certificate Details:
                 return {
                     valid: false,
                     message: 'Certificate uses achievements boost',
-                    cached: apiData.cached || false
+                    cached: apiData.cached || false,
+                    strictCheck: this.strictCheck
                 };
             }
 
