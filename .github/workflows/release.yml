@@ -47,12 +47,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Copy database setup file
-        run: |
-          BUILD_DIR="${{ steps.build.outputs.build-dir }}"
-          cp misc/db_setup/setup.sql "$BUILD_DIR/"
-          echo "[OK] Database setup file copied to build directory"
-
       - name: Create release archive
         id: archive
         run: |
@@ -119,7 +113,9 @@ jobs:
           tag_name: ${{ steps.release-info.outputs.release-tag }}
           name: ${{ steps.release-info.outputs.release-name }}
           body_path: release_body.md
-          files: ${{ steps.archive.outputs.archive-path }}
+          files: |
+            ${{ steps.archive.outputs.archive-path }}
+            misc/db_setup/setup.sql
           draft: false
           prerelease: false
           generate_release_notes: false
