@@ -4,6 +4,12 @@ name: 'Create Release'
 on:
   push:
     branches: main
+  workflow_dispatch:
+    inputs:
+      release_message:
+        description: 'NoSkid release'
+        required: true
+        type: string
 
 jobs:
   check-release:
@@ -14,9 +20,9 @@ jobs:
       - name: Check if commit message contains RELEASE
         id: check
         run: |
-          if [[ "${{ github.event.head_commit.message }}" == *"RELEASE"* ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ github.event.head_commit.message }}" == *"RELEASE"* ]]; then
             echo "should-release=true" >> $GITHUB_OUTPUT
-            echo "✅ RELEASE keyword found in commit message"
+            echo "[OK] RELEASE keyword found in commit message"
           else
             echo "should-release=false" >> $GITHUB_OUTPUT
             echo "[X] No RELEASE keyword found, skipping release"
@@ -24,7 +30,7 @@ jobs:
 
   build-and-release:
     needs: check-release
-    if: needs.check-release.outputs.should-release == 'true'
+    if: github.event_name == 'workflow_dispatch' || needs.check-release.outputs.should-release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -40,6 +46,12 @@ jobs:
         uses: ./.github/actions/build-noskid
         with:
           node-version: '18'
+
+      - name: Copy database setup file
+        run: |
+          BUILD_DIR="${{ steps.build.outputs.build-dir }}"
+          cp misc/db_setup/setup.sql "$BUILD_DIR/"
+          echo "[OK] Database setup file copied to build directory"
 
       - name: Create release archive
         id: archive
@@ -58,7 +70,7 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Archive created successfully: $ARCHIVE_NAME"
+          echo "[OK] Archive created successfully: $ARCHIVE_NAME"
           echo "archive-name=$ARCHIVE_NAME" >> $GITHUB_OUTPUT
           echo "archive-path=$(pwd)/$ARCHIVE_NAME" >> $GITHUB_OUTPUT
 
@@ -66,7 +78,7 @@ jobs:
         id: release-info
         run: |
           COMMIT_HASH="${{ steps.build.outputs.commit-hash }}"
-          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          COMMIT_MESSAGE="${{ github.event.inputs.release_message || github.event.head_commit.message }}"
           COMMIT_AUTHOR="${{ github.event.head_commit.author.name }}"
           COMMIT_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           
@@ -88,10 +100,11 @@ jobs:
           - Generated from the latest source code
           
           ### 🔧 Installation
-          1. Download the \`noskid-release-${COMMIT_HASH}.zip\` file
-          2. Extract the archive
-          3. Update the api/config.php file with your settings
-          4. Deploy the contents to your web server
+          1. Download the setup.sql file and import it into your database
+          2. Download the \`noskid-release-${COMMIT_HASH}.zip\` file
+          3. Extract the archive
+          4. Update the api/config.php file with your settings
+          5. Deploy the contents to your web server
           
           ---
           *This release was automatically generated from commit ${COMMIT_HASH}*
