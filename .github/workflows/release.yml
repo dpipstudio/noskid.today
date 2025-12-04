@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_message:
-        description: 'NoSkid release'
+        description: 'NoSkid release messages'
         required: true
         type: string
 
