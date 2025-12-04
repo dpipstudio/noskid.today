@@ -257,6 +257,7 @@
                     <li><a href="#features">Features</a></li>
                     <li><a href="#integration">Integration</a></li>
                     <li><a href="https://noskid.today" target="_blank">Get Certificate</a></li>
+                    <li><a id="erase" onclick="eraseCookies()">Remove stored key</a></li>
                 </ul>
             </nav>
         </div>
@@ -392,6 +393,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));
     </footer>
 
     <script>
+        const cookiebtn = '';
         const widgetId = skidguard.render('#captcha-demo', {
             callback: token => console.log('Verified!', token),
             errorCallback: msg => console.error('Verification failed:', msg),
@@ -399,6 +401,18 @@ app.listen(3000, () => console.log('Server running on port 3000'));
             size: 'normal',
             language: 'en'
         });
+
+        function eraseCookies() {
+            const el = document.getElementById('erase');
+            document.cookie.split(";").forEach(function (c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+
+            el.innerText = "Done !";
+            setTimeout(() => {
+                el.innerText = "Remove stored key";
+            }, 2000);
+        }
     </script>
 </body>
 
