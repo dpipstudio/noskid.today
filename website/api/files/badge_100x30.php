@@ -177,7 +177,13 @@ function serveErrorSvg($errorCode) {
     exit;
 }
 
+function sanitizeCacheKey($url) {
+    return substr(str_replace(["\r", "\n", "\0", ";"], '', $url), 0, 255);
+}
+
 function checkCache($url) {
+    $url = sanitizeCacheKey($url);
+    
     if (!file_exists(CACHE_FILE)) {
         return null;
     }
@@ -186,13 +192,13 @@ function checkCache($url) {
     $currentTime = time();
     
     foreach ($cacheData as $line) {
-        $parts = explode('; ', $line);
+        $parts = explode('; ', $line, 3);
         if (count($parts) === 3) {
             list($cachedUrl, $cachedDate, $certId) = $parts;
             
             if ($cachedUrl === $url) {
                 if (($currentTime - intval($cachedDate)) < CACHE_EXPIRY) {
-                    return $certId;
+                    return intval($certId);
                 } else {
                     return false;
                 }
@@ -204,6 +210,9 @@ function checkCache($url) {
 }
 
 function updateCache($url, $certId) {
+    $url = sanitizeCacheKey($url);
+    $certId = intval($certId);
+    
     $cacheData = [];
     $newEntry = "$url; " . time() . "; $certId";
     
@@ -211,16 +220,19 @@ function updateCache($url, $certId) {
         $cacheData = file(CACHE_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         
         $cacheData = array_filter($cacheData, function($line) use ($url) {
-            return strpos($line, $url . '; ') !== 0;
+            $parts = explode('; ', $line, 2);
+            return $parts[0] !== $url;
         });
     }
     
     $cacheData[] = $newEntry;
     
-    file_put_contents(CACHE_FILE, implode(PHP_EOL, $cacheData) . PHP_EOL);
+    file_put_contents(CACHE_FILE, implode(PHP_EOL, $cacheData) . PHP_EOL, LOCK_EX);
 }
 
 function removeFromCache($url) {
+    $url = sanitizeCacheKey($url);
+    
     if (!file_exists(CACHE_FILE)) {
         return;
     }
@@ -228,10 +240,11 @@ function removeFromCache($url) {
     $cacheData = file(CACHE_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     
     $cacheData = array_filter($cacheData, function($line) use ($url) {
-        return strpos($line, $url . '; ') !== 0;
+        $parts = explode('; ', $line, 2);
+        return $parts[0] !== $url;
     });
     
-    file_put_contents(CACHE_FILE, implode(PHP_EOL, $cacheData) . PHP_EOL);
+    file_put_contents(CACHE_FILE, implode(PHP_EOL, $cacheData) . PHP_EOL, LOCK_EX);
 }
 
 function getCertificateById($certId) {
@@ -289,6 +302,11 @@ function getCertificateById($certId) {
 
 if (isset($_GET['repo'])) {
     $repoPath = $_GET['repo'];
+
+    if (!preg_match('/^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/', $repoPath)) {
+        serveErrorSvg('422');
+    }
+
     $useOriginalName = isset($_GET['oname']) && ($_GET['oname'] === 'true' || $_GET['oname'] === '1');
 
     if (strpos($repoPath, '/') !== false) {
