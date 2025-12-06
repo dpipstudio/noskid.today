@@ -1,6 +1,6 @@
 <div align="center">
 
-[![NoSkid Verification](https://noskid.today/badge/100x30/?repo=douxxtech/)](https://noskid.today)
+[![NoSkid Verification](https://noskid.today/badge/100x30/?repo=douxxtech/douxxtech)](https://noskid.today)
 
 # NoSkid.Today - Don't Talk When You Don't Know
 </div>
