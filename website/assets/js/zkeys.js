@@ -184,7 +184,10 @@ function checkKeyCombination(event) {
         }
     }
 
-    if (actionCount === 10 && !doneAchZKEYS) addAchievement('Keyboard Ninja'); doneAchZKEYS = true;
+    if (actionCount === 10 && !doneAchZKEYS) {
+        addAchievement('Keyboard Ninja');
+        doneAchZKEYS = true;
+    }
 }
 
 document.addEventListener('keydown', checkKeyCombination);
