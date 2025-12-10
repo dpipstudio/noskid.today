@@ -1,11 +1,4 @@
 <?php
-// ratelimit things, for downcert
-define('MIN_PERCENTAGE', 80);
-define('MAX_PERCENTAGE', 100);
-define('MAX_REQUESTS_PER_MINUTE', 3);
-
-//notifications, leave empty to disable
-define('NOTIFICATIONS_ENDPOINT', 'NOTIFICATIONS_ENDPOINT_HERE');
 
 // database configuration
 define('DB_HOST', 'localhost');
@@ -13,9 +6,18 @@ define('DB_USER', 'dbuser');
 define('DB_PASS', 'dbpass');
 define('DB_NAME', 'dbname');
 
+// certificate
+define('MIN_PERCENTAGE', 80);
+define('MAX_PERCENTAGE', 100);
+define('MAX_REQUESTS_PER_MINUTE', 3);
+define('CERTIFICATE_PATH', '../../assets/img/certificate.svg');
+
 // turnstile configuration
 define('TURNSTILE_SECRET_KEY', 'turnstile_secret_key');
 define('TURNSTILE_VERIFY_URL', 'https://challenges.cloudflare.com/turnstile/v0/siteverify');
+
+//notifications, leave empty to disable
+define('NOTIFICATIONS_ENDPOINT', 'NOTIFICATIONS_ENDPOINT_HERE');
 
 //for the badges cache, the file is in /badges/cache.txt
 define('CACHE_FILE', '../cache.txt');
