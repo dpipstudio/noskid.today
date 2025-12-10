@@ -408,7 +408,7 @@ function downloadCertificate() {
 }
 
 function generateCertificate($name, $percentage, $insertId, $verificationKey, $ip) {
-    $svgPath = '../../assets/img/certificate.svg';
+    $svgPath = CERTIFICATE_PATH;
     if (!file_exists($svgPath)) {
         throw new Exception('SVG certificate template not found');
     }
