@@ -289,3 +289,24 @@ instructions {
   transform: translate(-50%, -55%);
   font-weight: bold;
 }
+
+.modt {
+  margin-top: 20px;
+  padding: 15px 20px;
+  background: var(--box);
+  border-radius: 8px;
+  border: var(--border);
+  transition: all 0.3s ease;
+}
+
+.modt:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modt p {
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+}

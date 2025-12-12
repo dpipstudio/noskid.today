@@ -317,6 +317,7 @@ function offerCertificate(percentage, userAnswers) {
     }
 
     try {
+      const modt = localStorage.getItem('modt');
       const params = new URLSearchParams();
       params.append('action', 'download');
       params.append('name', username);
@@ -347,8 +348,16 @@ function offerCertificate(percentage, userAnswers) {
 
       setTimeout(() => {
         quizForm.innerHTML = `
-<p>✅ Certificate downloaded! Check if a certificate is valid with 'Shift + C'</p>
+<p>✅ Certificate downloaded! Check if a certificate is valid with 'Shift + C'</p>`
 
+        if (modt && modt.trim()) {
+          quizForm.innerHTML += `
+<div class="modt">
+  <p>${modt}</p>
+</div>`
+        }
+
+        quizForm.innerHTML += `
 <div class="button-row">
   <p>What to do next ></p>
   <div class="buttons">

@@ -232,7 +232,7 @@ class ScriptLoader {
         });
     }
 
-    async checkForUpdates() {
+    async updateAndModt() {
         try {
             log('Checking for updates...', 'info');
 
@@ -240,12 +240,29 @@ class ScriptLoader {
 
             const response = await fetch('/api/latest/');
 
+            /*
+                First line will be version sha
+                The rest will be the message of the day
+            */
+
             if (!response.ok) {
                 log(`Error while checking for updates: ${response.statusText}`, 'error');
                 return false;
             }
 
-            const latestVersion = await response.text();
+
+            const text = await response.text();
+
+            const [latestVersion, ...rest] = text.split(/\r?\n/);
+            const modt = rest.join("\n");
+
+            if (modt.trim()) {
+                localStorage.setItem('modt', modt);
+                log('MODT set !', 'success');
+            } else {
+                localStorage.removeItem('modt');
+                log('MODT removed!', 'warning');
+            }
 
             if (!storedVersion) {
                 localStorage.setItem('latest', latestVersion);
@@ -258,15 +275,14 @@ class ScriptLoader {
 
                 log('Reloading to get latest version...', 'warning');
 
-
-                window.location.reload(true); // only refreshs cache on firefox, if anyone has a better way of doing it please do it
-
+                window.location.reload(true);
 
                 return true;
             } else {
                 log(`Up to date! (${latestVersion})`, 'success');
                 return false;
             }
+
 
         } catch (error) {
             log(`Error while checking for updates: ${error}`, 'error');
@@ -281,10 +297,9 @@ class ScriptLoader {
             if (loaderText) {
                 loaderText.textContent = 'UPDATING RESOURCES';
             }
-
         }
 
-        const needsUpdate = await this.checkForUpdates();
+        const needsUpdate = await this.updateAndModt();
 
         if (needsUpdate) {
             return;
