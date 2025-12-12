@@ -11,7 +11,14 @@ if (!file_exists($filename)) {
 
 if (empty($_GET)) {
     header('Content-Type: text/plain');
-    echo file_get_contents($filename);
+    
+    $text = file_get_contents($filename);
+    
+    if (defined('MODT') && MODT) {
+        $text .= "\n" . MODT;
+    }
+    
+    echo $text;
     exit;
 }
 
