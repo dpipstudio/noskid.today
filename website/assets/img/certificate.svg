@@ -21,16 +21,16 @@
   <text x="640" y="185" fill="#8b4513" font-size="28" font-family="'Times New Roman', serif" font-style="italic" text-anchor="middle">No Skid Certificate</text>
   
   <!-- yapyap -->
-  <text x="640" y="240" fill="#333333" font-size="22" font-family="'Garamond', serif" text-anchor="middle">This document certifies that</text>
+  <text x="640" y="240" fill="#333333" font-size="22" font-family="'Times New Roman', serif" text-anchor="middle">This document certifies that</text>
   
   <!-- username -->
-  <text x="640" y="300" fill="#000000" font-size="38" font-family="'Times New Roman', serif" font-weight="bold" text-anchor="middle">{{USER}}</text>
+  <text x="640" y="300" fill="#000000" font-size="38" font-family="Garamond', serif" font-weight="bold" text-anchor="middle">{{USER}}</text>
   
   <line x1="380" y1="320" x2="900" y2="320" stroke="#8b4513" stroke-width="1"/>
   
   <!-- yapyap -->
-  <text x="640" y="370" fill="#333333" font-size="24" font-family="'Garamond', serif" text-anchor="middle">Has demonstrated exceptional knowledge and expertise</text>
-  <text x="640" y="410" fill="#333333" font-size="24" font-family="'Garamond', serif" font-style="italic" text-anchor="middle">This person knows what they're talking about.</text>
+  <text x="640" y="370" fill="#333333" font-size="24" font-family="Garamond', serif" text-anchor="middle">Has demonstrated exceptional knowledge and expertise</text>
+  <text x="640" y="410" fill="#333333" font-size="24" font-family="Garamond', serif" font-style="italic" text-anchor="middle">This person knows what they're talking about.</text>
   
   <!-- score -->
   <text x="640" y="460" fill="#8b4513" font-size="32" font-family="'Times New Roman', serif" font-weight="bold" text-anchor="middle">With a proficiency of {{PERCENT}}%</text>
@@ -39,13 +39,15 @@
   <text x="300" y="520" fill="#333333" font-size="20" font-family="'Times New Roman', serif" text-anchor="middle">Date:</text>
   <text x="300" y="550" fill="#000000" font-size="20" font-family="'Times New Roman', serif" font-weight="bold" text-anchor="middle">{{DATE}}</text>
   
-  <!-- seal thing -->
-  <circle cx="1050" cy="550" r="65" fill="none" stroke="#8b4513" stroke-width="2"/>
-  <circle cx="1050" cy="550" r="60" fill="none" stroke="#8b4513" stroke-width="1"/>
-  <text x="1050" y="535" fill="#8b4513" font-size="18" font-family="'Times New Roman', serif" font-weight="bold" text-anchor="middle">OFFICIAL</text>
-  <text x="1050" y="560" fill="#8b4513" font-size="18" font-family="'Times New Roman', serif" font-weight="bold" text-anchor="middle">DPIP.lol</text>
-  <text x="1050" y="585" fill="#8b4513" font-size="18" font-family="'Times New Roman', serif" font-weight="bold" text-anchor="middle">SEAL</text>
-  
+  <!-- Signature line -->
+  <line x1="950" y1="570" x2="1150" y2="570" stroke="#8b4513" stroke-width="2"/>
+
+  <!-- Signature label -->
+  <text x="1050" y="595" fill="#333333" font-size="18" font-family="'Times New Roman', serif" text-anchor="middle">DPIP Studio Owner</text>
+
   <!-- cert numbers -->
   <text x="170" y="620" fill="#333333" font-size="18" font-family="'Times New Roman', serif" text-anchor="start">Certificate N°{{CERTNB}}</text>
+
+  <!-- signature goes here -->
+
 </svg>
