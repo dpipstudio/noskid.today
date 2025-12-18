@@ -216,7 +216,7 @@ function offerCertificate(percentage, userAnswers) {
 
   const usernameInput = document.createElement('input');
   usernameInput.type = 'text';
-  usernameInput.placeholder = 'Your name';
+  usernameInput.placeholder = 'Your name (shown on certificate)';
   usernameInput.className = 'input-text';
 
   const totalPercent = getTotalPercent();
