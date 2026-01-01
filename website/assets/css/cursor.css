@@ -1,21 +1,21 @@
 /*Cursor.css | Custom cursor style and animations */
 
 @media (min-width: 769px) {
-    *, 
-    *:hover,
-    button,
-    input[type="submit"],
-    input[type="button"],
-    a:hover,
-    a:link,
-    a:visited,
-    select,
-    input[type="range"],
-    input[type="date"],
-    input[type="color"],
-    ::-webkit-resizer,
-    video,
-    canvas {
+    .hide-cursor *, 
+    .hide-cursor *:hover,
+    .hide-cursor button,
+    .hide-cursor input[type="submit"],
+    .hide-cursor input[type="button"],
+    .hide-cursor a:hover,
+    .hide-cursor a:link,
+    .hide-cursor a:visited,
+    .hide-cursor select,
+    .hide-cursor input[type="range"],
+    .hide-cursor input[type="date"],
+    .hide-cursor input[type="color"],
+    .hide-cursor ::-webkit-resizer,
+    .hide-cursor video,
+    .hide-cursor canvas {
         cursor: none !important;
     }
 

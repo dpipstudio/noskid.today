@@ -7,6 +7,7 @@ function isMobileDevice() {
 
 if (!isMobileDevice()) {
     const cursor = document.createElement('div');
+    const body = document.body;
     cursor.classList.add('custom-cursor');
     document.body.appendChild(cursor);
     log('Cursor created!', 'success');
@@ -31,4 +32,6 @@ if (!isMobileDevice()) {
     document.addEventListener('mouseenter', () => {
         cursor.style.display = 'block';
     });
+
+    body.classList.add('hide-cursor');
 }
