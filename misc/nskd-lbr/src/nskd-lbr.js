@@ -295,12 +295,16 @@ Certificate Details:
             if (!match) return null;
 
             const certInfoEncoded = match[2];
-            const certInfoDecoded = atob(certInfoEncoded.replace(/=/g, ''));
+            const certInfoDecoded = new TextDecoder("utf-8").decode(
+                Uint8Array.from(atob(certInfoEncoded.replace(/=/g, '')), c => c.charCodeAt(0))
+            );
             const usernameMatch = certInfoDecoded.match(/CERT-\d+-(.+)/);
             const username = usernameMatch ? usernameMatch[1] : null;
 
             const dateInfoEncoded = match[3];
-            const dateInfoDecoded = atob(dateInfoEncoded.replace(/=/g, ''));
+            const dateInfoDecoded = new TextDecoder("utf-8").decode(
+                Uint8Array.from(atob(dateInfoEncoded.replace(/=/g, '')), c => c.charCodeAt(0))
+            );
             const dateMatch = dateInfoDecoded.match(/CREATED-(.+)/);
             const creationDate = dateMatch ? dateMatch[1] : null;
 

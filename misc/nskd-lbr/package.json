@@ -1,6 +1,6 @@
 {
   "name": "nskd-lbr",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "A JavaScript library for working with NoSkid certificates.",
   "main": "src/nskd-lbr.js",
   "scripts": {
