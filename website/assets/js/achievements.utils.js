@@ -4,7 +4,7 @@
 // Screen Wizard \\
 
 let resizeCount = 0;
-let resizeTimeout = null; 
+let resizeTimeout = null;
 
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
@@ -64,24 +64,35 @@ window.addEventListener('click', () => {
 
 // Marathon Runner \\
 
-//this has not been tested, obv
 let marathonAchievementGiven = false;
-const marathonStart = Date.now();
-startAchievement('Marathon Runner');
+let marathonStart = null;
+let marathonCheckInterval = null;
 
-const marathonCheckInterval = setInterval(() => {
-  if (marathonAchievementGiven) {
-    clearInterval(marathonCheckInterval);
+function initMarathonRunner() {
+  if (typeof validAchievements === 'undefined' || validAchievements.length === 0) {
+    setTimeout(initMarathonRunner, 100);
     return;
   }
 
-  const elapsed = Date.now() - marathonStart;
-  if (elapsed >= 2 * 60 * 60 * 1000) { // 2 hours in milliseconds
-    marathonAchievementGiven = true;
-    addAchievement('Marathon Runner');
-    clearInterval(marathonCheckInterval);
-  }
-}, 60 * 1000);
+  marathonStart = Date.now();
+  startAchievement('Marathon Runner');
+
+  marathonCheckInterval = setInterval(() => {
+    if (marathonAchievementGiven) {
+      clearInterval(marathonCheckInterval);
+      return;
+    }
+
+    const elapsed = Date.now() - marathonStart;
+    if (elapsed >= 2 * 60 * 60 * 1000) { // 2 hours in ms
+      marathonAchievementGiven = true;
+      addAchievement('Marathon Runner');
+      clearInterval(marathonCheckInterval);
+    }
+  }, 60 * 1000);
+}
+
+initMarathonRunner();
 
 // Marathon Runner \\
 
