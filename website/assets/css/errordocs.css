@@ -1,0 +1,193 @@
+/* Errordocs.css | styles for files located in /errordocs/ */
+
+:root {
+    --primary: #1e1e2e;
+    --secondary: #89b4fa;
+    --text: #cdd6f4;
+    --subtext: #bac2de;
+    --box: #181B28DF;
+    --border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: lato, ubuntu, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
+    background-color: var(--primary);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    max-width: 1200px;
+    width: 100%;
+    padding: 40px;
+}
+
+.text-section {
+    text-align: left;
+    max-width: 600px;
+}
+
+.logo {
+    margin-bottom: 2rem;
+}
+
+.logo h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -1px;
+}
+
+.logo .no {
+    color: var(--text);
+}
+
+.logo .skid {
+    color: var(--subtext);
+    text-decoration: line-through;
+    text-decoration-color: #ff6666;
+    text-decoration-thickness: 2px;
+}
+
+.error-content {
+    margin: 1.5rem 0;
+}
+
+.error-code {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ff6666;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.error-description {
+    font-size: 1.2rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    padding: 0.6rem 1.2rem;
+    background: var(--box);
+    border: var(--border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--subtext);
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background: #ff6666;
+    border-radius: 50%;
+}
+
+.error-message {
+    font-size: 0.95rem;
+    color: var(--subtext);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.action-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.7rem 1.8rem;
+    background-color: var(--secondary);
+    color: #1a1a1a;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.action-button:hover {
+    background-color: color-mix(in srgb, var(--secondary) 70%, black 30%);
+}
+
+.image-section {
+    flex-shrink: 0;
+}
+
+.gif {
+    width: 280px;
+    height: 350px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    text-align: center;
+}
+
+.footer {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    color: var(--subtext);
+    text-align: center;
+}
+
+.footer a {
+    color: #ff6666;
+    text-decoration: none;
+    transition: color 1s ease;
+}
+
+.footer a:hover {
+    color: var(--text);
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .text-section {
+        text-align: center;
+    }
+
+    .logo h1 {
+        font-size: 2rem;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+    }
+
+    .image-section {
+        display: none;
+    }
+}

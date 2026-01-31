@@ -1,12 +1,4 @@
 <!DOCTYPE html>
-
-<!--
-This incredible website has been made by douxx.tech !
-noskid.today is a DPIP.lol project.
-
-invaders must die ;)
--->
-
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,197 +21,8 @@ invaders must die ;)
     <link rel="shortcut icon" href="https://noskid.today/assets/img/noskid-icon.png" type="image/x-icon" />
     <link rel="icon" href="https://noskid.today/assets/img/noskid-icon.png" type="image/x-icon" />
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #0a0a0a;
-            color: #cccccc;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 60px;
-            max-width: 1200px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        .text-section {
-            text-align: left;
-            max-width: 600px;
-        }
-
-        .logo {
-            margin-bottom: 2rem;
-        }
-
-        .logo h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            letter-spacing: -1px;
-        }
-
-        .logo .no {
-            color: #cccccc;
-        }
-
-        .logo .skid {
-            color: #888888;
-            text-decoration: line-through;
-            text-decoration-color: #ff6b6b;
-            text-decoration-thickness: 2px;
-        }
-
-        .error-content {
-            margin: 1.5rem 0;
-        }
-
-        .main-title {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #ff6b6b;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: #cccccc;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 1.5rem 0;
-            padding: 0.6rem 1.2rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            color: #aaaaaa;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .error-message {
-            font-size: 0.95rem;
-            color: #999999;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .action-button {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.7rem 1.8rem;
-            background: rgba(255, 107, 107, 0.08);
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            border-radius: 6px;
-            color: #ff6b6b;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .action-button:hover {
-            background: rgba(255, 107, 107, 0.15);
-            transform: translateY(-1px);
-            text-shadow: 0 0 8px rgba(255, 107, 107, 0.6);
-        }
-
-        .image-section {
-            flex-shrink: 0;
-        }
-
-        .gif {
-            width: 280px;
-            height: 350px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .footer {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.85rem;
-            color: #555;
-            text-align: center;
-        }
-
-        .footer a {
-            color: #888;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: #aaa;
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                gap: 30px;
-                text-align: center;
-                justify-content: center;
-            }
-
-            .text-section {
-                text-align: center;
-            }
-
-            .logo h1 {
-                font-size: 2rem;
-            }
-            
-            .main-title {
-                font-size: 2.2rem;
-            }
-            
-            .subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .image-section {
-                display: none;
-            }
-        }
-    </style>
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://noskid.todday/assets/css/errordocs.css" />
 </head>
 
 <body>
@@ -233,13 +36,8 @@ invaders must die ;)
             </div>
             
             <div class="error-content">
-                <div class="main-title">500</div>
-                <div class="subtitle">Server Error</div>
-                
-                <div class="status-indicator">
-                    <div class="dot"></div>
-                    <span>Internal Error</span>
-                </div>
+                <div class="error-code">500</div>
+                <div class="error-description">Server Error</div>
                 
                 <p class="error-message">
                     Something went wrong on our end.
