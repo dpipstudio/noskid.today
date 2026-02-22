@@ -317,7 +317,7 @@ function offerCertificate(percentage, userAnswers) {
     }
 
     try {
-      const modt = localStorage.getItem('modt');
+      const motd = localStorage.getItem('motd');
       const params = new URLSearchParams();
       params.append('action', 'download');
       params.append('name', username);
@@ -350,10 +350,10 @@ function offerCertificate(percentage, userAnswers) {
         quizForm.innerHTML = `
 <p>✅ Certificate downloaded! Check if a certificate is valid with 'Shift + C'</p>`
 
-        if (modt && modt.trim()) {
+        if (motd && motd.trim()) {
           quizForm.innerHTML += `
-<div class="modt">
-  <p>${modt}</p>
+<div class="motd">
+  <p>${motd}</p>
 </div>`
         }
 

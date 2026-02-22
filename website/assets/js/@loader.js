@@ -232,7 +232,7 @@ class ScriptLoader {
         });
     }
 
-    async updateAndModt() {
+    async updateAndMotd() {
         try {
             log('Checking for updates...', 'info');
 
@@ -254,14 +254,14 @@ class ScriptLoader {
             const text = await response.text();
 
             const [latestVersion, ...rest] = text.split(/\r?\n/);
-            const modt = rest.join("\n");
+            const motd = rest.join("\n");
 
-            if (modt.trim()) {
-                localStorage.setItem('modt', modt);
-                log('MODT set !', 'success');
+            if (motd.trim()) {
+                localStorage.setItem('motd', motd);
+                log('MOTD set !', 'success');
             } else {
-                localStorage.removeItem('modt');
-                log('MODT removed!', 'warning');
+                localStorage.removeItem('motd');
+                log('MOTD removed!', 'warning');
             }
 
             if (!storedVersion) {
@@ -299,7 +299,7 @@ class ScriptLoader {
             }
         }
 
-        const needsUpdate = await this.updateAndModt();
+        const needsUpdate = await this.updateAndMotd();
 
         if (needsUpdate) {
             return;
