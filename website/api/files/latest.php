@@ -14,8 +14,8 @@ if (empty($_GET)) {
     
     $text = file_get_contents($filename);
     
-    if (defined('MODT') && MODT) {
-        $text .= "\n" . MODT;
+    if (defined('MOTD') && MOTD) {
+        $text .= "\n" . MOTD;
     }
     
     echo $text;
