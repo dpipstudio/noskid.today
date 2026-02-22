@@ -84,6 +84,7 @@ class ScriptLoader {
             'assets/js/cw.utils.js',
             'assets/js/downfall.js',
             'assets/js/exploit.js',
+            'assets/js/fame.js',
             'assets/js/gary.js',
             'assets/js/konata.js',
             'assets/js/localinfo.js',

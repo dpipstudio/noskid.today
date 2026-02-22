@@ -54,6 +54,11 @@ const keyBindings = [
         keys: ['Shift', 'A'],
         action: spawnAchievementSystem,
         description: 'Look at your achievements !'
+    },
+    {
+        keys: ['Shift', 'F'],
+        action: showFame,
+        description: 'Take a look at the hall of fame !'
     }
 ];
 
