@@ -500,11 +500,19 @@ function addAchievement(achievementName) {
     const url = `/api/achievement/?action=done&name=${encodeURIComponent(achievementName)}&id=${encodeURIComponent(currentUserId)}`;
 
     fetch(url)
-        .then(response => {
+        .then(async response => {
+            const data = await response.json().catch(() => null);
+
             if (!response.ok) {
+                // If server provided a message, use it
+                if (data && data.message) {
+                    throw new Error(data.message);
+                }
+
                 throw new Error('Network error when marking achievement as done');
             }
-            return response.json();
+
+            return data;
         })
         .then(data => {
             if (data.status) {
@@ -517,15 +525,14 @@ function addAchievement(achievementName) {
                 showAchievementNotification(achievementName);
                 log(`Achievement "${achievementName}" completed!`, 'success');
 
-                // check for "Legendary NoSkid" achievement
                 checkAllAchievementsCompleted();
             } else {
-                throw new Error(data.error || 'Unknown error');
+                throw new Error(data.message || data.error || 'Unknown error');
             }
         })
-        .catch(error => {
-            log(`Error marking achievement "${achievementName}" as done: ${error.message}`, 'error');
-        });
+        .catch (error => {
+        log(`Error marking achievement "${achievementName}" as done: ${error.message}`, 'error');
+    });
 
     return true;
 }
@@ -658,7 +665,7 @@ function checkAllAchievementsCompleted() {
     }
 }
 
-(async function() {
+(async function () {
     await preloadAchievements();
 })();
 
