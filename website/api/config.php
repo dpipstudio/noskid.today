@@ -20,7 +20,7 @@ define('TURNSTILE_VERIFY_URL', 'https://challenges.cloudflare.com/turnstile/v0/s
 define('NOTIFICATIONS_ENDPOINT', '');
 
 // message of the day to be displayed once we downloaded a certificate. leave empty to disable
-define('MODT', '');
+define('MOTD', '');
 
 //for the badges cache, the file is in /badges/cache.txt
 define('CACHE_FILE', '../cache.txt');
