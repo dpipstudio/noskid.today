@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `cert` (
   `ip` VARCHAR(45) NOT NULL,
   `verification_key` VARCHAR(255) DEFAULT NULL,
   `achievements_id` VARCHAR(255) DEFAULT NULL,
+  `fame` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_verification_key` (`verification_key`(64))
