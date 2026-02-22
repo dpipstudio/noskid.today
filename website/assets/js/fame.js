@@ -14,7 +14,7 @@ async function showFame() {
     });
 
     try {
-        const response = await fetch('api/fame');
+        const response = await fetch('/api/fame/');
         const json = await response.json();
 
         if (!json.success || !json.data.length) {
