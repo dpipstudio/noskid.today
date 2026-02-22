@@ -373,7 +373,7 @@ function handleMarkAchievementDone() {
 
         if ($minimumTime >= 1) {
             if (!validateAchievementTime($userId, $achievementName, $minimumTime)) {
-                sendError('Achievement time validation failed. Minimum time: ' . $minimumTime . ' seconds');
+                sendError('Achievement time validation failed.');
             }
 
             removeAchievementFromTemp($userId, $achievementName);
