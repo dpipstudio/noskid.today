@@ -71,6 +71,14 @@ async function playBadApl() {
     let playbackInterval = null;
 
     function displayFrame() {
+      if (isGoodAppleEnabled()) {
+        log('Good Apple mode enabled mid-playback', 'warning');
+        if (playbackInterval) clearInterval(playbackInterval);
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+
       if (currentFrame >= validFrames.length) {
         log('BadApl console playback finished', 'success');
         if (playbackInterval) clearInterval(playbackInterval);
