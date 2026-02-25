@@ -1,8 +1,9 @@
 <?php
 // Be sure of having the database set up before checking if a cert is valid
 
-require_once '../../api/config.php';
+$CFG_PATH = '../../api/config.php';
 $ALLOW_CORS = true; // Allow CORS for this endpoint
+require_once $CFG_PATH;
 require_once '../../api/files/headers.php';
 
 function extractVerificationKeyFromPng($fileContent) {

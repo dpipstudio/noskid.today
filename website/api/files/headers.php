@@ -1,5 +1,10 @@
 <?php
-require_once '../config.php';
+
+if (!isset($CFG_PATH)) {
+    $CFG_PATH = '../config.php';
+}
+
+require_once $CFG_PATH;
 
 // Set default content type to JSON (can be overridden before calling this)
 if (!isset($CONTENT_TYPE)) {
