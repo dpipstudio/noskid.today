@@ -2,6 +2,8 @@
 // Be sure of having the database set up before checking if a cert is valid
 
 require_once '../../api/config.php';
+$ALLOW_CORS = true; // Allow CORS for this endpoint
+require_once '../../api/files/headers.php';
 
 function extractVerificationKeyFromPng($fileContent) {
     if (substr($fileContent, 0, 8) !== "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A") {

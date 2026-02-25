@@ -1,8 +1,7 @@
 <?php
 
 require_once '../config.php';
-
-header('Content-Type: application/json');
+require_once '../files/headers.php';
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

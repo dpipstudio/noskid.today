@@ -1,12 +1,8 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: noskid.today');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
 require_once '../config.php';
 require_once '../files/getip.php';
 require_once '../files/notifications.php';
+require_once '../files/headers.php';
 
 
 if (!isset($questions)) {

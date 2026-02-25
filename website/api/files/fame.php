@@ -1,7 +1,6 @@
 <?php
 require_once '../config.php';
-
-header('Content-Type: application/json');
+require_once '../files/headers.php';
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

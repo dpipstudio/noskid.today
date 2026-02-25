@@ -1,10 +1,8 @@
 <?php
-
-header('Content-Type: application/json');
-
 require_once '../config.php';
 require_once '../files/getip.php';
 require_once '../files/notifications.php';
+require_once '../files/headers.php';
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

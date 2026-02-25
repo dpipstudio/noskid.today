@@ -3,9 +3,7 @@
 
 require_once '../config.php';
 require_once '../files/notifications.php';
-
-
-header('Content-Type: application/json');
+require_once '../files/headers.php';
 
 if (!isset($_GET['key']) || empty($_GET['key'])) {
     echo json_encode([
