@@ -29,7 +29,8 @@ switch ($action) {
         break;
 }
 
-function getQuestions() {
+function getQuestions()
+{
     global $questions;
 
     try {
@@ -65,14 +66,14 @@ function getQuestions() {
             'success' => true,
             'questions' => $formatted_questions
         ], JSON_PRETTY_PRINT);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Error processing questions: ' . $e->getMessage()]);
     }
 }
 
-function checkAnswers() {
+function checkAnswers()
+{
     global $questions;
 
     try {
@@ -145,93 +146,96 @@ function checkAnswers() {
             'threshold' => MIN_PERCENTAGE,
             'details' => $results
         ], JSON_PRETTY_PRINT);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Error during verification: ' . $e->getMessage()]);
     }
 }
 
-function getUserAchievements($userId) {
+function getUserAchievements($userId)
+{
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
+
     if ($conn->connect_error) {
         return [];
     }
-    
+
     $stmt = $conn->prepare("SELECT completed_achievements FROM user_achievements WHERE id = ?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     $completedAchievements = [];
     if ($row = $result->fetch_assoc()) {
         if (!empty($row['completed_achievements'])) {
             $completedAchievements = explode('||', $row['completed_achievements']);
         }
     }
-    
+
     $stmt->close();
     $conn->close();
-    
+
     return $completedAchievements;
 }
 
-function calculateAchievementBonus($userId) {
+function calculateAchievementBonus($userId)
+{
     global $achievements;
-    
+
     if (empty($userId) || !isset($achievements) || !is_array($achievements)) {
         return 0;
     }
-    
+
     $completedAchievements = getUserAchievements($userId);
-    
+
     if (empty($completedAchievements)) {
         return 0;
     }
-    
+
     $totalBonus = 0;
-    
+
     foreach ($achievements as $achievement) {
         if (!isset($achievement['name']) || !isset($achievement['percent'])) {
             continue;
         }
-        
+
         $achievementName = trim((string) $achievement['name']);
-        
+
         if (in_array($achievementName, $completedAchievements)) {
             $totalBonus += (int) $achievement['percent'];
         }
     }
-    
+
     return $totalBonus;
 }
 
-function validateThatUserHasAchievements($userId) {
+function validateThatUserHasAchievements($userId)
+{
     if (empty($userId)) {
         return false;
     }
-    
+
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
+
     if ($conn->connect_error) {
         return false;
     }
-    
+
     $stmt = $conn->prepare("SELECT id FROM user_achievements WHERE id = ?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     $exists = $result->num_rows > 0;
-    
+
     $stmt->close();
     $conn->close();
-    
+
     return $exists;
 }
 
-function downloadCertificate() {
+function downloadCertificate()
+{
     global $questions;
 
     if (!isset($_GET['name']) || empty($_GET['name'])) {
@@ -314,15 +318,15 @@ function downloadCertificate() {
         }
 
         $basePercentage = $total_questions > 0 ? round(($correct_answers / $total_questions) * 100, 2) : 0;
-        
+
         $achievementBonus = calculateAchievementBonus($userId);
-        
+
         $finalPercentage = $basePercentage + $achievementBonus;
 
         if ($basePercentage < MIN_PERCENTAGE) {
             http_response_code(400);
             echo json_encode([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Certificate can only be downloaded with a base score of 80% or higher',
                 'base_percentage' => $basePercentage,
                 'achievement_bonus' => $achievementBonus,
@@ -332,82 +336,75 @@ function downloadCertificate() {
             exit;
         }
 
-        if (defined('DB_HOST') && defined('DB_USER') && defined('DB_PASS') && defined('DB_NAME')) {
-            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-            if ($mysqli->connect_error) {
-                throw new Exception('Database connection failed: ' . $mysqli->connect_error);
-            }
-
-
-            if (defined('MAX_REQUESTS_PER_MINUTE')) {
-                $oneMinuteAgo = gmdate('Y-m-d H:i:s', $currentTime - 60);
-                $stmt = $mysqli->prepare("SELECT COUNT(*) AS request_count FROM requests WHERE ip = ? AND request_time > ?");
-                $stmt->bind_param("ss", $ip, $oneMinuteAgo);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $requestCount = $result->fetch_assoc()['request_count'];
-                $stmt->close();
-
-                if ($requestCount >= MAX_REQUESTS_PER_MINUTE) {
-                    $mysqli->close();
-                    http_response_code(429);
-                    echo json_encode(['success' => false, 'message' => 'Rate limit exceeded']);
-                    exit;
-                }
-            }
-
-            $stmt = $mysqli->prepare("INSERT INTO requests (ip, user_agent, request_time) VALUES (?, ?, UTC_TIMESTAMP())");
-            $stmt->bind_param("ss", $ip, $userAgent);
-            $stmt->execute();
-            $stmt->close();
-
-            if (defined('MIN_PERCENTAGE') && $basePercentage < MIN_PERCENTAGE) {
-                $mysqli->close();
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Base percentage below minimum threshold']);
-                exit;
-            }
-
-            if (defined('MAX_PERCENTAGE') && $basePercentage > MAX_PERCENTAGE) {
-                $mysqli->close();
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Base percentage above maximum threshold']);
-                exit;
-            }
-
-            $verificationKey = generateVerificationKey($name, $currentTime, $mysqli);
-
-            // only save achievements_id if achievement bonus was applied AND user is valid
-            $userIdToSave = ($achievementBonus > 0 && validateThatUserHasAchievements($userId)) ? $userId : null;
-
-            if ($userIdToSave !== null) {
-                $stmt = $mysqli->prepare("INSERT INTO cert (name, percentage, ip, verification_key, achievements_id) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("sdsss", $name, $finalPercentage, $ip, $verificationKey, $userIdToSave);
-            } else {
-                $stmt = $mysqli->prepare("INSERT INTO cert (name, percentage, ip, verification_key) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("sdss", $name, $finalPercentage, $ip, $verificationKey);
-            }
-            
-            $stmt->execute();
-            $insertId = $mysqli->insert_id;
-            $stmt->close();
-
-            $mysqli->close();
-        } else {
-            $insertId = rand(1000, 9999);
-            $verificationKey = generateSimpleVerificationKey($name, $currentTime);
+        if ($mysqli->connect_error) {
+            throw new Exception('Database connection failed: ' . $mysqli->connect_error);
         }
 
-        generateCertificate($name, $finalPercentage, $insertId, $verificationKey, $ip);
 
+        if (defined('MAX_REQUESTS_PER_MINUTE')) {
+            $oneMinuteAgo = gmdate('Y-m-d H:i:s', $currentTime - 60);
+            $stmt = $mysqli->prepare("SELECT COUNT(*) AS request_count FROM requests WHERE ip = ? AND request_time > ?");
+            $stmt->bind_param("ss", $ip, $oneMinuteAgo);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $requestCount = $result->fetch_assoc()['request_count'];
+            $stmt->close();
+
+            if ($requestCount >= MAX_REQUESTS_PER_MINUTE) {
+                $mysqli->close();
+                http_response_code(429);
+                echo json_encode(['success' => false, 'message' => 'Rate limit exceeded']);
+                exit;
+            }
+        }
+
+        $stmt = $mysqli->prepare("INSERT INTO requests (ip, user_agent, request_time) VALUES (?, ?, UTC_TIMESTAMP())");
+        $stmt->bind_param("ss", $ip, $userAgent);
+        $stmt->execute();
+        $stmt->close();
+
+        if (defined('MIN_PERCENTAGE') && $basePercentage < MIN_PERCENTAGE) {
+            $mysqli->close();
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Base percentage below minimum threshold']);
+            exit;
+        }
+
+        if (defined('MAX_PERCENTAGE') && $basePercentage > MAX_PERCENTAGE) {
+            $mysqli->close();
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Base percentage above maximum threshold']);
+            exit;
+        }
+
+        $verificationKey = generateVerificationKey($name, $currentTime, $mysqli);
+
+        // only save achievements_id if achievement bonus was applied AND user is valid
+        $userIdToSave = ($achievementBonus > 0 && validateThatUserHasAchievements($userId)) ? $userId : null;
+
+        if ($userIdToSave !== null) {
+            $stmt = $mysqli->prepare("INSERT INTO cert (name, percentage, ip, verification_key, achievements_id) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sdsss", $name, $finalPercentage, $ip, $verificationKey, $userIdToSave);
+        } else {
+            $stmt = $mysqli->prepare("INSERT INTO cert (name, percentage, ip, verification_key) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("sdss", $name, $finalPercentage, $ip, $verificationKey);
+        }
+
+        $stmt->execute();
+        $insertId = $mysqli->insert_id;
+        $stmt->close();
+
+        $mysqli->close();
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Error generating certificate: ' . $e->getMessage()]);
     }
 }
 
-function generateCertificate($name, $percentage, $insertId, $verificationKey, $ip) {
+function generateCertificate($name, $percentage, $insertId, $verificationKey, $ip)
+{
     $svgPath = CERTIFICATE_PATH;
     if (!file_exists($svgPath)) {
         throw new Exception('SVG certificate template not found');
@@ -417,7 +414,7 @@ function generateCertificate($name, $percentage, $insertId, $verificationKey, $i
 
     $date = gmdate('Y-m-d');
     $certNumber = str_pad($insertId, 5, '0', STR_PAD_LEFT);
-        
+
     $svgContent = str_replace(['{{DATE}}', '{{CERTNB}}', '{{PERCENT}}', '{{USER}}'], [$date, $certNumber, $percentage, $name], $svgContent);
 
     $tempSvgPath = tempnam(sys_get_temp_dir(), 'cert_') . '.svg';
@@ -437,7 +434,7 @@ function generateCertificate($name, $percentage, $insertId, $verificationKey, $i
     if (defined('NOTIFICATIONS_ENDPOINT') && !empty(NOTIFICATIONS_ENDPOINT)) {
         $pngData = file_get_contents($pngPath);
         $base64Png = base64_encode($pngData);
-        
+
         sendNotification('new_cert', [
             'certNumber' => $certNumber,
             'username' => $name,
@@ -456,25 +453,26 @@ function generateCertificate($name, $percentage, $insertId, $verificationKey, $i
 }
 
 
-function verifyTurnstile($token, $remoteIp) {
+function verifyTurnstile($token, $remoteIp)
+{
     if (empty($token)) {
         error_log('Turnstile verification failed: Empty token provided');
         return false;
     }
-    
+
     if (empty($remoteIp)) {
         error_log('Turnstile verification failed: Empty IP provided');
         return false;
     }
-    
+
     $postFields = [
         'secret' => TURNSTILE_SECRET_KEY,
         'response' => $token,
         'remoteip' => $remoteIp
     ];
-    
+
     $ch = curl_init();
-    
+
     curl_setopt_array($ch, [
         CURLOPT_URL => TURNSTILE_VERIFY_URL,
         CURLOPT_POST => true,
@@ -491,34 +489,34 @@ function verifyTurnstile($token, $remoteIp) {
         CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_MAXREDIRS => 0
     ]);
-    
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
     curl_close($ch);
-    
+
     if ($response === false || !empty($curlError)) {
         error_log('Turnstile verification failed: cURL error - ' . $curlError);
         return false;
     }
-    
+
     if ($httpCode !== 200) {
         error_log('Turnstile verification failed: HTTP ' . $httpCode . ' - ' . $response);
         return false;
     }
-    
+
     $result = json_decode($response, true);
-    
+
     if ($result === null) {
         error_log('Turnstile verification failed: Invalid JSON response - ' . json_last_error_msg());
         return false;
     }
-    
+
     if (!isset($result['success'])) {
         error_log('Turnstile verification failed: Missing success field in response');
         return false;
     }
-    
+
     if (!$result['success']) {
         $errors = 'Unknown error';
         if (isset($result['error-codes']) && is_array($result['error-codes'])) {
@@ -527,7 +525,7 @@ function verifyTurnstile($token, $remoteIp) {
         error_log('Turnstile verification failed: ' . $errors);
         return false;
     }
-    
+
     if (isset($result['hostname']) && !empty($_SERVER['HTTP_HOST'])) {
         $expectedHostname = $_SERVER['HTTP_HOST'];
         if ($result['hostname'] !== $expectedHostname) {
@@ -535,61 +533,45 @@ function verifyTurnstile($token, $remoteIp) {
             return false;
         }
     }
-    
+
     if (isset($result['challenge_ts'])) {
         $challengeTime = strtotime($result['challenge_ts']);
         $currentTime = time();
         $maxAge = 300; // 5 minutes max
-        
+
         if (($currentTime - $challengeTime) > $maxAge) {
             error_log('Turnstile verification failed: Token too old');
             return false;
         }
     }
-        
+
     return true;
 }
 
-function generateVerificationKey($name, $timestamp, $mysqli) {
+function generateVerificationKey($name, $timestamp, $mysqli)
+{
     $randomChars = bin2hex(random_bytes(32));
-    
+
     $result = $mysqli->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" . DB_NAME . "' AND TABLE_NAME = 'cert'");
     $row = $result->fetch_assoc();
     $nextId = $row['AUTO_INCREMENT'];
-    
+
     $certNumberData = "CERT-" . str_pad($nextId, 5, '0', STR_PAD_LEFT) . "-" . $name;
     $certBasedChars = base64_encode($certNumberData);
     $certBasedChars = str_pad($certBasedChars, 64, '=', STR_PAD_RIGHT);
     $certBasedChars = substr($certBasedChars, 0, 64);
-    
+
     $dateTime = gmdate('Y-m-d H:i:s', $timestamp);
     $timeData = "CREATED-" . $dateTime;
     $timeBasedChars = base64_encode($timeData);
     $timeBasedChars = str_pad($timeBasedChars, 64, '=', STR_PAD_RIGHT);
     $timeBasedChars = substr($timeBasedChars, 0, 64);
-    
+
     return $randomChars . '|' . $certBasedChars . '|' . $timeBasedChars;
 }
 
-function generateSimpleVerificationKey($name, $timestamp) {
-    $randomChars = bin2hex(random_bytes(32));
-    $certId = rand(1000, 9999);
-    
-    $certNumberData = "CERT-" . str_pad($certId, 5, '0', STR_PAD_LEFT) . "-" . $name;
-    $certBasedChars = base64_encode($certNumberData);
-    $certBasedChars = str_pad($certBasedChars, 64, '=', STR_PAD_RIGHT);
-    $certBasedChars = substr($certBasedChars, 0, 64);
-    
-    $dateTime = gmdate('Y-m-d H:i:s', $timestamp);
-    $timeData = "CREATED-" . $dateTime;
-    $timeBasedChars = base64_encode($timeData);
-    $timeBasedChars = str_pad($timeBasedChars, 64, '=', STR_PAD_RIGHT);
-    $timeBasedChars = substr($timeBasedChars, 0, 64);
-    
-    return $randomChars . '|' . $certBasedChars . '|' . $timeBasedChars;
-}
-
-function createTextChunk($keyword, $text) {
+function createTextChunk($keyword, $text)
+{
     $data = $keyword . "\0" . $text;
     $length = pack('N', strlen($data));
     $chunkType = 'tEXt';
@@ -597,7 +579,8 @@ function createTextChunk($keyword, $text) {
     return $length . $chunkType . $data . $crc;
 }
 
-function appendVerificationKeyToPng($pngPath, $verificationKey) {
+function appendVerificationKeyToPng($pngPath, $verificationKey)
+{
     $keyParts = explode('|', $verificationKey);
 
     $verificationText = "-----BEGIN NOSKID KEY-----\n";
@@ -635,5 +618,3 @@ function appendVerificationKeyToPng($pngPath, $verificationKey) {
     $newData = substr($pngData, 0, 8) . implode('', $chunks);
     file_put_contents($pngPath, $newData);
 }
-
-?>
