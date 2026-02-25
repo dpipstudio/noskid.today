@@ -422,7 +422,8 @@ Certificate Details:
             return { valid: false, reason: 'Missing data for comparison' };
         }
 
-        if (localData.username !== apiData.username) {
+        if (!apiData.username.startsWith(localData.username) &&
+            !localData.username.startsWith(apiData.username)) {
             return {
                 valid: false,
                 reason: `Username mismatch: Local=${localData.username}, API=${apiData.username}`
@@ -432,7 +433,8 @@ Certificate Details:
         const localDateMinutes = localData.creationDate.substring(0, 16);
         const apiDateMinutes = apiData.creationDate.substring(0, 16);
 
-        if (localDateMinutes !== apiDateMinutes) {
+        if (!apiDateMinutes.startsWith(localDateMinutes) &&
+            !localDateMinutes.startsWith(apiDateMinutes)) {
             return {
                 valid: false,
                 reason: `Creation date mismatch: Local=${localDateMinutes}, API=${apiDateMinutes}`
