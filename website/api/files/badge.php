@@ -303,6 +303,10 @@ function getCertificateById($certId) {
     ];
 }
 
+if (!isset($SIZE)) {
+    $SIZE = '100x30';
+}
+
 if (isset($_GET['repo'])) {
     $repoPath = $_GET['repo'];
 
@@ -366,7 +370,7 @@ if (isset($_GET['repo'])) {
         }
 
         if ($certificateUsername == $owner || $cachedCertId !== null) {
-            $svgTemplate = file_get_contents('../../assets/img/100x30.svg');
+            $svgTemplate = file_get_contents("../../assets/img/$SIZE.svg");
             if ($svgTemplate === false) {
                 serveErrorSvg('422');
             }
@@ -444,7 +448,7 @@ if (isset($_GET['repo'])) {
         $displayUsername = "$domainName's owner";
     }
 
-    $svgTemplate = file_get_contents('../../assets/img/100x30.svg');
+    $svgTemplate = file_get_contents("../../assets/img/$SIZE.svg");
     if ($svgTemplate === false) {
         serveErrorSvg('422');
     }

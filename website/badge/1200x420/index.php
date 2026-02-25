@@ -1,3 +1,4 @@
 <?php
-include_once '../../api/files/badge_1200x420.php';
+$SIZE = '1200x420';
+include_once '../../api/files/badge.php';
 ?>
