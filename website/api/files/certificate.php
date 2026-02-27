@@ -2,6 +2,10 @@
 require_once '../config.php';
 require_once '../files/getip.php';
 require_once '../files/notifications.php';
+
+if (($_GET['action'] ?? '') === 'download') {
+    $CONTENT_TYPE = 'image/png';
+}
 require_once '../files/headers.php';
 
 
@@ -393,6 +397,9 @@ function downloadCertificate()
         $stmt->close();
 
         $mysqli->close();
+
+        generateCertificate($name, $finalPercentage, $insertId, $verificationKey, $ip); // add this back
+
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Error generating certificate: ' . $e->getMessage()]);
