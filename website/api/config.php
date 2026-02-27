@@ -32,7 +32,7 @@ define('ETC_PWD', 'etcpwd');
 // headers settings
 define('ALLOW_CORS', false); // Enable CORS headers
 define('SECURITY_HEADERS', true); // Add security headers
-define('CACHE_CONTROL', 'public, max-age=3600'); // Cache settings
+define('CACHE_CONTROL', 'no-store, no-cache, must-revalidate'); // Cache settings
 
 // define if help page should be displayed on /api/ or not
 define('SHOW_API_HELP', true);
