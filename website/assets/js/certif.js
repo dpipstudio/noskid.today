@@ -95,7 +95,6 @@ async function createQuestions() {
       input.addEventListener('change', () => {
         if (timerStart === null) {
           startTimer();
-          enableTabSwitchDetection();
         }
       });
 
