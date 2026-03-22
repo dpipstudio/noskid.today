@@ -59,8 +59,7 @@ function scrollToTop() {
 }
 
 class ScriptLoader {
-    constructor(consoleElement) {
-        this.consoleElement = consoleElement;
+    constructor() {
         this.scripts = [
             'https://challenges.cloudflare.com/turnstile/v0/api.js',
             'https://lbr.noskid.today/nskd-lbr.min.js',
@@ -337,8 +336,11 @@ class ScriptLoader {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    const consoleElement = document.getElementById('console');
-    const loader = new ScriptLoader(consoleElement);
+
+    log("Found a bug, issue, or have a question? Reach out at", 'info');
+    log("https://git.douxx.tech/noskid.today/ or douxx@douxx.tech", 'info');
+
+    const loader = new ScriptLoader();
     loader.loadAll();
 
     // url has func
