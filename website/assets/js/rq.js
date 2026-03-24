@@ -91,7 +91,7 @@ function displayCertificateDetails(data) {
     log(`Percentage: ${data.percentage}%`, 'success');
     log(`Creation Date: ${data.creationDate}`, 'success');
     log(`Country: ${data.country} (${data.countryCode})`, 'success');
-    log('=-=-=-=-=-=-=-=-==-=-==-=-=', 'warning');
+    log('=-=-=-=-=-=-=-=-=-=-=-=-=-=', 'warning');
 }
 
 function getFormattedTime() {
@@ -126,7 +126,7 @@ function connectToWebSocketServer(key) {
                 log('Body:', 'info');
                 log(JSON.stringify(data.data.body, null, 2), 'info');
             }
-            log('=-=-=-=-=-=-=-=-==-=-==-=-=', 'warning');
+            log('=-=-=-=-=-=-=-=-=-=-=-=-=-=', 'warning');
 
         } else if (data.type === 'auth_failed') {
             log(`Authentication failed: ${data.reason}`, 'error');

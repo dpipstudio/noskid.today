@@ -89,7 +89,7 @@ function showCertificateDetails(data) {
     log(`Percentage: ${data.percentage}%`, 'success');
     log(`Creation Date: ${data.creationDate}`, 'success');
     log(`Country: ${data.country} (${data.countryCode})`, 'success');
-    log('=-=-=-=-=-=-=-=-==-=-==-=-=', 'warning');
+    log('=-=-=-=-=-=-=-=-=-=-=-=-=-=', 'warning');
 }
 
 function getFormattedTime() {

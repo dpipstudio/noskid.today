@@ -39,7 +39,7 @@ function logStats() {
     log("=-=-==-=-= Stats =-=-==-=-=", 'warning');
     log(`Unique visitors: ${unique_views}`, 'warning');
     log(`Total requests: ${total_requests}`, 'warning');
-    log("=-=-=-=-=-=-=-=-==-=-==-=-=", 'warning');
+    log("=-=-=-=-=-=-=-=-=-=-=-=-=-=", 'warning');
     log('', 'warning');
 
 }
