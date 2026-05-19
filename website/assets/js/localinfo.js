@@ -73,6 +73,7 @@ const refererGroups = [
             { match: "teams", label: "Teams" },
             { match: "telegram", label: "Telegram" },
             { match: "whatsapp", label: "WhatsApp" },
+            { match: "l.wl.co", label: "WhatsApp" },
             { match: "signal", label: "Signal" },
             { match: "messenger", label: "Messenger" },
             { match: "matrix", label: "Matrix" },
