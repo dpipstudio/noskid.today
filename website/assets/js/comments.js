@@ -628,7 +628,7 @@ function renderComment(comment, parentAuthor = null, showVerifiedBadge = true) {
                         onclick="handleReaction(${comment.id}, '${userDisliked ? 'none' : 'dislike'}')">
                     ↓ ${comment.dislikes || 0}
                 </button>
-                <button class="reply-btn" onclick="spawnReplyForm(${comment.id}, \"${(comment.author || 'Anonymous').replace(/'/g, "\\'")}\")">
+                <button class="reply-btn" onclick="spawnReplyForm(${comment.id}, '${(comment.author || 'Anonymous').replace(/'/g, "\\'")}')">
                     Reply
                 </button>
                 ${hasReplies ? `
