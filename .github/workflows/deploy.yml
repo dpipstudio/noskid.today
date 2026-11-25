@@ -80,24 +80,6 @@ jobs:
       id: deploy1
       if: steps.build.outputs.build-success == 'true'
       uses: ./.github/actions/deploy-ftp
-      continue-on-error: true
-      with:
-        build-dir: ${{ steps.build.outputs.build-dir }}
-        ftp-server: ${{ secrets.FTP_SERVER }}
-        ftp-username: ${{ secrets.FTP_USERNAME }}
-        ftp-password: ${{ secrets.FTP_PASSWORD }}
-        ftp-server-dir: ${{ secrets.FTP_SERVER_DIR }}
-
-    - name: Wait before retry (if needed)
-      if: steps.deploy1.outputs.deploy-success != 'true'
-      run: |
-        echo "[i] Waiting 30 seconds before retrying FTP deployment..."
-        sleep 30
-
-    - name: Deploy to server (2nd attempt)
-      id: deploy2
-      if: steps.build.outputs.build-success == 'true' && steps.deploy1.outputs.deploy-success != 'true'
-      uses: ./.github/actions/deploy-ftp
       with:
         build-dir: ${{ steps.build.outputs.build-dir }}
         ftp-server: ${{ secrets.FTP_SERVER }}
