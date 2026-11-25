@@ -76,7 +76,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
     
-    - name: Deploy to server (1st attempt)
+    - name: Deploy to server
       id: deploy1
       if: steps.build.outputs.build-success == 'true'
       uses: ./.github/actions/deploy-ftp
