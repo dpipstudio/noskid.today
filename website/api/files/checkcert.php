@@ -26,8 +26,8 @@ if ($mysqli->connect_error) {
 }
 
 $stmt = $mysqli->prepare("SELECT c.id, c.name, c.percentage, c.ip, c.achievements_id, c.created_at, c.verification_key 
-                         FROM cert c 
-                         WHERE c.verification_key LIKE CONCAT(?, '|%')");
+                          FROM cert c 
+                          WHERE SUBSTRING_INDEX(c.verification_key, '|', 1) = ?");
 
 if (!$stmt) {
     echo json_encode([
